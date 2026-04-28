@@ -1,0 +1,22 @@
+{
+  "id": "s_001",
+  "turns": [
+    {
+      "turn": 1,
+      "keywords": ["kw_borscht", "kw_cook"],
+      "cloud_ids": ["borscht", "beetroot", "beef", "cabbage", "broth", "boil", "noodles"],
+      "correct": ["borscht", "beef", "beetroot", "broth"],
+      "trap": ["noodles"],
+      "required": ["borscht", "broth"],
+      "required_any": [["beef", "beetroot", "cabbage"]]
+    },
+    {
+      "turn": 2,
+      "keywords": ["kw_time"],
+      "cloud_ids": ["boil", "two", "hours", "add", "noodles"],
+      "correct": ["boil", "two", "hours"],
+      "trap": ["noodles"],
+      "required": ["two", "hours"]
+    }
+  ]
+}

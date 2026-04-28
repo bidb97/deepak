@@ -1,0 +1,21 @@
+{
+  "meta": {
+    "title": "Сброс контекста",
+    "has_subcategories": false,
+    "scope": "common"
+  },
+  "context_reset": [
+    {
+      "id": "let_us_clarify"
+    },
+    {
+      "id": "summarizing"
+    },
+    {
+      "id": "remind_me"
+    },
+    {
+      "id": "tok_moilp0ik_u2rz8qzo"
+    }
+  ]
+}

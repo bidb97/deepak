@@ -1,0 +1,18 @@
+{
+  "greetings": [
+    {
+      "id": "good_day"
+    },
+    {
+      "id": "hello"
+    },
+    {
+      "id": "greetings"
+    }
+  ],
+  "meta": {
+    "title": "Приветствия",
+    "has_subcategories": false,
+    "scope": "common"
+  }
+}

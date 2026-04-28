@@ -1,0 +1,34 @@
+{
+  "meta": {
+    "title": "meta_numbers_symbols_title",
+    "has_subcategories": true,
+    "scope": "common",
+    "subcategories": {
+      "digits": {
+        "title": "meta_numbers_symbols_digits_title"
+      },
+      "symbols": {
+        "title": "meta_numbers_symbols_symbols_title"
+      }
+    }
+  },
+  "numbers_symbols": {
+    "digits": [
+      { "id": "num_0" },
+      { "id": "num_1" },
+      { "id": "num_2" },
+      { "id": "num_3" },
+      { "id": "num_4" },
+      { "id": "num_5" },
+      { "id": "num_6" },
+      { "id": "num_7" },
+      { "id": "num_8" },
+      { "id": "num_9" }
+    ],
+    "symbols": [
+      { "id": "sym_exclaim" },
+      { "id": "sym_question" },
+      { "id": "sym_dash" }
+    ]
+  }
+}

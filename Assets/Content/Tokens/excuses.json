@@ -1,0 +1,12 @@
+{
+  "meta": {
+    "title": "Отмазки",
+    "has_subcategories": false,
+    "scope": "common"
+  },
+  "excuses": [
+      { "id": "incorrect_request" },
+      { "id": "error_occurred" },
+      { "id": "try_again" }
+  ]
+}

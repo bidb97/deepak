@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I Am Deepak - Content Editor</title>
+    <!-- Tailwind для быстрой и красивой верстки -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Vue 3 для реактивности -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- IndexedDB KeyVal -->
+    <script src="https://cdn.jsdelivr.net/npm/idb-keyval@6/dist/umd.js"></script>
+    <style>
+        /* Скрываем Vue-шаблоны до загрузки */
+        [v-cloak] { display: none; }
+
+        :root {
+            --bg-app: #090a0c;
+            --bg-sidebar: #0f1115;
+            --bg-main: #111318;
+            --bg-surface: #161a20;
+            --bg-surface-soft: #1a1f26;
+            --bg-input: #13171d;
+            --bg-hover: #212833;
+            --text-primary: #eceff4;
+            --text-muted: #a9b0bc;
+            --text-dim: #7e8795;
+            --border: #262c36;
+            --accent: #6a5cff;
+            --accent-hover: #7f73ff;
+            --success: #18b368;
+            --danger: #f04f62;
+            --focus: rgba(106, 92, 255, 0.45);
+        }
+        body {
+            background: var(--bg-app) !important;
+            color: var(--text-primary) !important;
+        }
+        #app { background: var(--bg-app) !important; color: var(--text-primary) !important; }
+        aside { background: var(--bg-sidebar) !important; }
+        main { background: var(--bg-main) !important; }
+        .bg-gray-50,
+        .bg-gray-100,
+        .bg-white { background: var(--bg-surface) !important; }
+        .text-gray-800,
+        .text-gray-700,
+        .text-gray-600 { color: var(--text-primary) !important; }
+        .text-gray-500,
+        .text-gray-400,
+        .text-red-400 { color: var(--text-muted) !important; }
+        .border,
+        .border-b,
+        .border-t,
+        .border-gray-200,
+        .border-gray-100,
+        .border-gray-300,
+        .border-gray-700 { border-color: var(--border) !important; }
+        input,
+        textarea,
+        select {
+            background: var(--bg-input) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--border) !important;
+        }
+        input::placeholder,
+        textarea::placeholder { color: var(--text-dim) !important; }
+        input:focus,
+        textarea:focus,
+        select:focus {
+            border-color: var(--accent) !important;
+            box-shadow: 0 0 0 1px var(--focus);
+        }
+        button {
+            transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+        }
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 6, 14, 0.78);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .token-badge {
+            background: rgba(255, 255, 255, 0.07);
+            color: #d7deea;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+        }
+        .action-icon-btn {
+            width: 1.75rem;
+            height: 1.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-primary);
+            transition: all 0.15s ease-in-out;
+        }
+        .action-icon-btn svg {
+            width: 0.9rem;
+            height: 0.9rem;
+        }
+        .action-icon-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+        .action-icon-btn-primary {
+            background: rgba(106, 92, 255, 0.2);
+            border-color: rgba(106, 92, 255, 0.45);
+            color: #ddd9ff;
+        }
+        .action-icon-btn-primary:hover:not(:disabled) {
+            background: rgba(106, 92, 255, 0.32);
+        }
+        .action-icon-btn-danger {
+            background: rgba(240, 79, 98, 0.16);
+            border-color: rgba(240, 79, 98, 0.45);
+            color: #ffc3cb;
+        }
+        .action-icon-btn-danger:hover:not(:disabled) {
+            background: rgba(240, 79, 98, 0.28);
+        }
+        .action-icon-btn-success {
+            background: rgba(24, 179, 104, 0.16);
+            border-color: rgba(24, 179, 104, 0.44);
+            color: #b8f5d8;
+        }
+        .action-icon-btn-success:hover:not(:disabled) {
+            background: rgba(24, 179, 104, 0.26);
+        }
+        .action-icon-btn-warning {
+            background: rgba(245, 158, 11, 0.18);
+            border-color: rgba(245, 158, 11, 0.5);
+            color: #fde68a;
+        }
+        .action-icon-btn-warning:hover:not(:disabled) {
+            background: rgba(245, 158, 11, 0.3);
+        }
+        .action-icon-btn-neutral {
+            background: rgba(16, 31, 53, 0.85);
+            border-color: var(--border);
+            color: var(--text-muted);
+        }
+        .action-icon-btn-neutral:hover:not(:disabled) {
+            background: var(--bg-hover);
+        }
+        .bg-blue-600 { background: var(--accent) !important; }
+        .hover\:bg-blue-500:hover { background: var(--accent-hover) !important; }
+        .bg-green-600 { background: var(--success) !important; }
+        .hover\:bg-green-500:hover { background: #23c67a !important; }
+        .bg-purple-600 { background: #7a49ff !important; }
+        .hover\:bg-purple-500:hover { background: #9368ff !important; }
+        .text-green-600 { color: #3fdb93 !important; }
+        .text-red-500 { color: #ff7f90 !important; }
+        .bg-blue-50 { background: rgba(106, 92, 255, 0.14) !important; }
+        .border-blue-500,
+        .border-blue-300 { border-color: rgba(106, 92, 255, 0.45) !important; }
+        .text-blue-700 { color: #ddd9ff !important; }
+        .hover\:border-blue-300:hover { border-color: rgba(106, 92, 255, 0.6) !important; }
+        .bg-green-50 { background: rgba(24, 179, 104, 0.14) !important; }
+        .border-green-300 { border-color: rgba(24, 179, 104, 0.4) !important; }
+        .text-green-700 { color: #b8f5d8 !important; }
+        .hover\:bg-green-100:hover { background: rgba(24, 179, 104, 0.24) !important; }
+        .hover\:bg-gray-700:hover,
+        .hover\:bg-gray-100:hover { background: var(--bg-hover) !important; }
+        .shadow,
+        .shadow-sm,
+        .shadow-lg {
+            box-shadow: 0 8px 20px rgba(1, 7, 20, 0.45) !important;
+        }
+        .token-file-row {
+            background: var(--bg-surface-soft) !important;
+            border-color: var(--border) !important;
+        }
+        .token-file-row-idle:hover {
+            border-color: #3b4351 !important;
+            background: #1d232c !important;
+        }
+        .token-file-row-active {
+            background: rgba(106, 92, 255, 0.18) !important;
+            border-color: rgba(106, 92, 255, 0.55) !important;
+            box-shadow: inset 0 0 0 1px rgba(106, 92, 255, 0.25) !important;
+        }
+        .subcategory-tab-idle {
+            background: var(--bg-surface-soft) !important;
+            border-color: var(--border) !important;
+            color: var(--text-muted) !important;
+        }
+        .subcategory-tab-idle:hover {
+            border-color: #3b4351 !important;
+            background: #1d232c !important;
+        }
+        .subcategory-tab-active {
+            background: rgba(106, 92, 255, 0.16) !important;
+            border-color: rgba(106, 92, 255, 0.52) !important;
+            color: #ddd9ff !important;
+            box-shadow: inset 0 0 0 1px rgba(106, 92, 255, 0.22) !important;
+        }
+        .token-row-inactive {
+            opacity: 0.58;
+        }
+        .token-card-inactive {
+            opacity: 0.55;
+            border-style: dashed !important;
+        }
+    </style>
+</head>
+<body class="text-gray-800 font-sans">
+    <div id="app" v-cloak class="flex h-screen overflow-hidden">
+        <!-- Боковая панель -->
+        <aside class="w-64 bg-gray-800 text-white flex flex-col">
+            <div class="p-[22px] text-md border-b border-gray-700"><span class="font-bold">I am Deepak</span> - Content Editor</div>
+            <nav class="flex-1 overflow-y-auto p-4 space-y-2">
+                <button @click="currentTab = 'tokens'" :class="{'bg-blue-600': currentTab === 'tokens', 'hover:bg-gray-700': currentTab !== 'tokens'}" class="w-full text-left px-4 py-2 rounded transition">Токены</button>
+                <button @click="currentTab = 'users'" :class="{'bg-blue-600': currentTab === 'users', 'hover:bg-gray-700': currentTab !== 'users'}" class="w-full text-left px-4 py-2 rounded transition">Пользователи</button>
+                <button @click="currentTab = 'scenarios'" :class="{'bg-blue-600': currentTab === 'scenarios', 'hover:bg-gray-700': currentTab !== 'scenarios'}" class="w-full text-left px-4 py-2 rounded transition">Сценарии</button>
+            </nav>
+            <div class="p-4 border-t border-gray-700">
+                <button @click="selectProjectFolder" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 rounded transition shadow-lg">
+                    {{ dirHandle ? 'Сменить папку проекта' : 'Открыть папку Assets' }}
+                </button>
+                <p v-if="dirHandle" class="text-xs text-gray-400 mt-2 text-center break-words">Подключено: {{ dirHandle.name }}</p>
+            </div>
+        </aside>
+
+        <!-- Основной контент -->
+        <main class="flex-1 flex flex-col overflow-hidden bg-gray-50">
+            <!-- Шапка -->
+            <header class="bg-white shadow-sm p-4 flex justify-between items-center z-10 border-b">
+                <h1 class="text-2xl font-bold text-gray-800">{{ tabTitle }}</h1>
+                <div class="flex items-center gap-2">
+                    <button
+                        @click="openLanguagesModal"
+                        title="Языки"
+                        class="w-9 h-9 rounded border border-gray-300 hover:bg-gray-100 transition flex items-center justify-center text-lg"
+                    >
+                        🌐
+                    </button>
+                    <div v-if="dirHandle" class="text-sm text-green-600 flex items-center font-semibold">
+                        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        Связь с файлами Unity установлена
+                    </div>
+                    <div v-else class="text-sm text-red-500 flex items-center font-semibold">
+                        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        Требуется доступ к файлам
+                    </div>
+                </div>
+            </header>
+
+            <!-- Рабочая область -->
+            <div class="flex-1 overflow-y-auto p-6">
+                <!-- Заглушка, если проект не выбран -->
+                <div v-if="!dirHandle" class="h-full flex flex-col items-center justify-center text-gray-500">
+                    <svg class="w-20 h-20 mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
+                    <p class="text-xl font-medium text-gray-600">Нажмите «Открыть папку Assets»</p>
+                    <p class="mt-2 text-sm text-gray-400">Укажите папку проекта Unity (где лежат Content и lang), чтобы редактор мог сохранять JSON напрямую.</p>
+                </div>
+
+                <!-- Контент, если папка выбрана -->
+                <div v-else class="h-full">
+                    <tokens-panel
+                        v-if="currentTab === 'tokens'"
+                        :token-files="tokenFiles"
+                        :selected-file="selectedFile"
+                        :save-message="saveMessage"
+                        :visual-data-entries="visualDataEntries"
+                        :file-has-subcategories="fileHasSubcategories"
+                        :subcategory-meta="subcategoryMeta"
+                        :translations="translations"
+                        :primary-language="primaryLanguage"
+                        :visible-language-list="visibleLanguageList"
+                        @select-file="selectFile"
+                        @delete-file="deleteFileRow"
+                        @toggle-file-active="toggleFileActive"
+                        @open-edit-group-title="openEditGroupTitleModal"
+                        @clear-file="clearFileTokens"
+                        @open-create-group="openCreateGroupModal"
+                        @open-import="openMassiveImport"
+                        @save-file="saveFile"
+                        @delete-subcategory="deleteSubcategory"
+                        @remove-token="removeToken"
+                        @toggle-token-active="toggleTokenActive"
+                        @move-token="moveToken"
+                        @open-add-token="openAddTokenModal"
+                        @open-create-subcategory="openCreateSubcategoryModal"
+                        @open-edit-subcategory-title="openEditSubcategoryTitleModal"
+                        @clear-subcategory="clearSubcategoryTokens"
+                        @toggle-subcategory-active="toggleSubcategoryActive"
+                    ></tokens-panel>
+                    <scenarios-panel v-if="currentTab === 'scenarios'" :scenario-files="scenarioFiles"></scenarios-panel>
+                    <users-panel v-if="currentTab === 'users'" :users="users"></users-panel>
+                </div>
+            </div>
+        </main>
+        <create-token-group-modal
+            :show="showCreateGroupModal"
+            :new-group-file-name="newGroupFileName"
+            :new-group-title="newGroupTitle"
+            :new-group-has-subcategories="newGroupHasSubcategories"
+            :new-group-token-scope="newGroupTokenScope"
+            @update:new-group-file-name="newGroupFileName = $event"
+            @update:new-group-title="newGroupTitle = $event"
+            @update:new-group-has-subcategories="newGroupHasSubcategories = $event"
+            @update:new-group-token-scope="newGroupTokenScope = $event"
+            @close="showCreateGroupModal = false"
+            @create="createTokenGroup"
+        ></create-token-group-modal>
+        <import-tokens-modal
+            :show="showImportModal"
+            :category-names="categoryNames"
+            :import-category="importCategory"
+            :import-subcategory="importSubcategory"
+            :file-has-subcategories="fileHasSubcategories"
+            :import-subcategory-options="importSubcategoryOptions"
+            :mass-import-json="massImportJson"
+            @update:import-category="importCategory = $event"
+            @update:import-subcategory="importSubcategory = $event"
+            @update:mass-import-json="massImportJson = $event"
+            @close="showImportModal = false"
+            @apply="applyMassiveImport"
+        ></import-tokens-modal>
+        <add-token-modal
+            :show="showAddTokenModal"
+            :languages="visibleLanguageList"
+            :token-draft="newTokenModalDraft"
+            @update-token-value="updateTokenDraftValue"
+            @close="showAddTokenModal = false"
+            @create="createTokenAfterCard"
+        ></add-token-modal>
+        <create-subcategory-modal
+            :show="showCreateSubcategoryModal"
+            :slug="newSubcategorySlug"
+            :title="newSubcategoryTitle"
+            @update:slug="newSubcategorySlug = $event"
+            @update:title="newSubcategoryTitle = $event"
+            @close="showCreateSubcategoryModal = false"
+            @create="createSubcategoryFromModal"
+        ></create-subcategory-modal>
+        <edit-title-modal
+            :show="showEditTitleModal"
+            :heading="editTitleHeading"
+            :languages="visibleLanguageList"
+            :values="editTitleValues"
+            @update:value="updateEditTitleValue"
+            @close="showEditTitleModal = false"
+            @save="saveEditedTitle"
+        ></edit-title-modal>
+        <languages-modal
+            :show="showLanguagesModal"
+            :languages="languages"
+            :new-language-code="newLanguageCode"
+            :is-language-visible="isLanguageVisible"
+            @toggle-language="toggleLanguageVisibility"
+            @update:new-language-code="newLanguageCode = $event"
+            @add-language="addLanguage"
+            @close="showLanguagesModal = false"
+        ></languages-modal>
+    </div>
+
+    <script src="./js/core/uid.js"></script>
+    <script src="./js/services/fs-service.js"></script>
+    <script src="./js/services/tokens-service.js"></script>
+    <script src="./js/services/users-service.js"></script>
+    <script src="./js/components/common/IconActionButton.js"></script>
+    <script src="./js/components/TokensPanel.js"></script>
+    <script src="./js/components/ScenariosPanel.js"></script>
+    <script src="./js/components/UsersPanel.js"></script>
+    <script src="./js/components/modals/CreateTokenGroupModal.js"></script>
+    <script src="./js/components/modals/ImportTokensModal.js"></script>
+    <script src="./js/components/modals/AddTokenModal.js"></script>
+    <script src="./js/components/modals/CreateSubcategoryModal.js"></script>
+    <script src="./js/components/modals/EditTitleModal.js"></script>
+    <script src="./js/components/modals/LanguagesModal.js"></script>
+    <script>
+        const tokensService = window.ContentEditorTokensService;
+        const fsService = window.ContentEditorFsService;
+        const usersService = window.ContentEditorUsersService;
+        const { TokensPanel, ScenariosPanel, UsersPanel, CreateTokenGroupModal, ImportTokensModal, AddTokenModal, CreateSubcategoryModal, EditTitleModal, LanguagesModal } = window.ContentEditorComponents;
+
+        const { createApp, ref, computed, onMounted } = Vue;
+
+        createApp({
+            components: {
+                TokensPanel,
+                ScenariosPanel,
+                UsersPanel,
+                CreateTokenGroupModal,
+                ImportTokensModal,
+                AddTokenModal,
+                CreateSubcategoryModal,
+                EditTitleModal,
+                LanguagesModal
+            },
+            setup() {
+                const currentTab = ref('tokens');
+                const dirHandle = ref(null);
+                const tokenFiles = ref([]);
+                const scenarioFiles = ref([]);
+                const users = ref([]);
+
+                const selectedFile = ref(null);
+                const visualData = ref({});
+                const newTokenInputs = ref({});
+                const saveMessage = ref('');
+                const languages = ref([]);
+                const translations = ref({});
+                const rootContentHandle = ref(null);
+                const showCreateGroupModal = ref(false);
+                const showImportModal = ref(false);
+                const showAddTokenModal = ref(false);
+                const showCreateSubcategoryModal = ref(false);
+                const showEditTitleModal = ref(false);
+                const showLanguagesModal = ref(false);
+                const massImportJson = ref('');
+                const importCategory = ref('');
+                const importSubcategory = ref('');
+                const newGroupFileName = ref('');
+                const newGroupTitle = ref('');
+                const newGroupHasSubcategories = ref(false);
+                const newGroupTokenScope = ref('common');
+                const newTokenModalDraft = ref({});
+                const addTokenContext = ref(null);
+                const createSubcategoryCategory = ref('');
+                const newSubcategorySlug = ref('');
+                const newSubcategoryTitle = ref('');
+                const editTitleHeading = ref('');
+                const editTitleValues = ref({});
+                const editTitleTarget = ref(null);
+                const newLanguageCode = ref('');
+                const visibleLanguages = ref([]);
+
+                const categoryNames = computed(() => Object.keys(visualData.value).filter((k) => k !== 'meta'));
+
+                const visualDataEntries = computed(() =>
+                    Object.fromEntries(
+                        Object.entries(visualData.value).filter(([key]) => key !== 'meta')
+                    )
+                );
+
+                const importSubcategoryOptions = computed(() => {
+                    if (!importCategory.value || !visualData.value[importCategory.value]) return [];
+                    return Object.keys(visualData.value[importCategory.value]);
+                });
+
+                const visibleLanguageList = computed(() => {
+                    if (!visibleLanguages.value.length) return languages.value;
+                    return languages.value.filter((lang) => visibleLanguages.value.includes(lang));
+                });
+
+                const primaryLanguage = computed(() => {
+                    if (visibleLanguageList.value.includes('ru')) return 'ru';
+                    return visibleLanguageList.value[0] || languages.value[0] || 'ru';
+                });
+
+                const subcategoryMeta = computed(() => visualData.value?.meta?.subcategories || {});
+
+                const fileHasSubcategories = computed(() => {
+                    if (visualData.value?.meta?.has_subcategories === true) return true;
+                    if (visualData.value?.meta?.has_subcategories === false) return false;
+                    const entries = Object.entries(visualData.value || {}).filter(([k]) => k !== 'meta');
+                    if (!entries.length) return true;
+                    return entries.every(([, value]) => !Array.isArray(value));
+                });
+
+                const normalizeVisualDataForEditor = (parsed) => {
+                    const next = JSON.parse(JSON.stringify(parsed || {}));
+                    const normalizeTokenArray = (arr) => (Array.isArray(arr) ? arr
+                        .filter((token) => token && typeof token.id === 'string')
+                        .map((token) => ({
+                            id: token.id,
+                            active: token.active !== false
+                        })) : []);
+                    const entries = Object.entries(next).filter(([key]) => key !== 'meta');
+                    let hasFlatCategory = false;
+                    for (const [key, value] of entries) {
+                        if (Array.isArray(value)) {
+                            next[key] = { __flat: normalizeTokenArray(value) };
+                            hasFlatCategory = true;
+                        } else if (value && typeof value === 'object') {
+                            const normalizedSubcats = {};
+                            for (const [subName, tokenArray] of Object.entries(value)) {
+                                normalizedSubcats[subName] = normalizeTokenArray(tokenArray);
+                            }
+                            next[key] = normalizedSubcats;
+                        }
+                    }
+                    if (hasFlatCategory) {
+                        next.meta = next.meta || {};
+                        next.meta.has_subcategories = false;
+                    }
+                    return next;
+                };
+
+                const serializeVisualDataForSave = () => {
+                    const payload = {};
+                    for (const [category, subcats] of Object.entries(visualData.value || {})) {
+                        if (category === 'meta') continue;
+                        if (!fileHasSubcategories.value) {
+                            if (Array.isArray(subcats)) {
+                                payload[category] = subcats;
+                            } else if (subcats && typeof subcats === 'object') {
+                                const candidate = subcats.__flat ?? Object.values(subcats)[0] ?? [];
+                                payload[category] = Array.isArray(candidate) ? candidate : [];
+                            } else {
+                                payload[category] = [];
+                            }
+                            continue;
+                        }
+                        payload[category] = subcats;
+                    }
+                    payload.meta = {
+                        ...(visualData.value?.meta || {}),
+                        title: visualData.value?.meta?.title || '',
+                        has_subcategories: fileHasSubcategories.value
+                    };
+                    return payload;
+                };
+
+                const readLanguageMapForFile = async (contentHandle, lang, fileName, createIfMissing = true) => {
+                    const langRoot = await contentHandle.getDirectoryHandle('lang', { create: createIfMissing });
+                    const langDir = await langRoot.getDirectoryHandle(lang, { create: createIfMissing });
+                    const tokensDir = await langDir.getDirectoryHandle('tokens', { create: createIfMissing });
+                    const fileHandle = await tokensDir.getFileHandle(fileName, { create: createIfMissing });
+                    const file = await fileHandle.getFile();
+                    const text = await file.text();
+                    const map = text.trim() ? JSON.parse(text) : {};
+                    return { fileHandle, map };
+                };
+
+                const writeLanguageMap = async (fileHandle, map) => {
+                    const writable = await fileHandle.createWritable();
+                    await writable.write(JSON.stringify(map, null, 2));
+                    await writable.close();
+                };
+
+                const upsertMetaTranslation = async (contentHandle, fileName, key, ruValue) => {
+                    for (const lang of languages.value) {
+                        const { fileHandle, map } = await readLanguageMapForFile(contentHandle, lang, fileName);
+                        if (lang === 'ru') {
+                            map[key] = ruValue;
+                        } else if (map[key] === undefined) {
+                            map[key] = null;
+                        }
+                        await writeLanguageMap(fileHandle, map);
+                    }
+                };
+
+                const collectUsedTokenIds = async () => tokensService.collectProjectTokenIds(rootContentHandle.value);
+
+                const ensureLanguageExists = (lang) => {
+                    if (!languages.value.includes(lang)) {
+                        languages.value.push(lang);
+                    }
+                    if (!translations.value[lang]) {
+                        translations.value[lang] = {};
+                    }
+                };
+
+                const persistVisibleLanguages = () => {
+                    localStorage.setItem('deepak_editor_visible_languages', JSON.stringify(visibleLanguages.value));
+                };
+
+                const isLanguageVisible = (lang) => visibleLanguages.value.includes(lang);
+
+                const toggleLanguageVisibility = (lang) => {
+                    if (isLanguageVisible(lang)) {
+                        visibleLanguages.value = visibleLanguages.value.filter((l) => l !== lang);
+                    } else {
+                        visibleLanguages.value = [...visibleLanguages.value, lang];
+                    }
+                    persistVisibleLanguages();
+                };
+
+                const openLanguagesModal = () => {
+                    showLanguagesModal.value = true;
+                };
+
+                const addLanguage = () => {
+                    const lang = (newLanguageCode.value || '').trim().toLowerCase();
+                    if (lang && !languages.value.includes(lang)) {
+                        languages.value.push(lang);
+                        translations.value[lang] = {};
+                        visibleLanguages.value.push(lang);
+                        persistVisibleLanguages();
+                    }
+                    newLanguageCode.value = '';
+                };
+
+                const loadTranslationsForSelectedFile = async () => {
+                    if (!rootContentHandle.value || !selectedFile.value) return;
+                    const langRoot = await rootContentHandle.value.getDirectoryHandle('lang', { create: true });
+                    for (const lang of languages.value) {
+                        if (!translations.value[lang]) translations.value[lang] = {};
+                        const langDir = await langRoot.getDirectoryHandle(lang, { create: true });
+                        const tokensDir = await langDir.getDirectoryHandle('tokens', { create: true });
+                        const locFileHandle = await tokensDir.getFileHandle(selectedFile.value.name, { create: true });
+                        const locFile = await locFileHandle.getFile();
+                        const text = await locFile.text();
+                        if (text.trim()) {
+                            try {
+                                translations.value[lang] = JSON.parse(text);
+                            } catch (e) {
+                                translations.value[lang] = {};
+                            }
+                        } else {
+                            translations.value[lang] = {};
+                        }
+                    }
+                };
+
+                const selectFile = async (fileItem) => {
+                    selectedFile.value = fileItem;
+                    saveMessage.value = '';
+                    try {
+                        const file = await fileItem.handle.getFile();
+                        const text = await file.text();
+                        const parsed = JSON.parse(text);
+                        visualData.value = normalizeVisualDataForEditor(parsed);
+                        const categories = categoryNames.value;
+                        importCategory.value = categories[0] || '';
+                        importSubcategory.value = categories[0] ? Object.keys(visualData.value[categories[0]])[0] || '' : '';
+                        if (!fileHasSubcategories.value) {
+                            importSubcategory.value = categories[0] ? Object.keys(visualData.value[categories[0]])[0] || '' : '';
+                        }
+                        await loadTranslationsForSelectedFile();
+                    } catch (e) {
+                        console.error('Ошибка чтения:', e);
+                        visualData.value = {};
+                    }
+                };
+
+                const openMassiveImport = () => {
+                    if (!selectedFile.value) {
+                        alert('Сначала выберите файл токенов.');
+                        return;
+                    }
+                    showImportModal.value = true;
+                };
+
+                const openCreateGroupModal = () => {
+                    if (!rootContentHandle.value) {
+                        alert('Сначала подключите папку проекта.');
+                        return;
+                    }
+                    newGroupFileName.value = '';
+                    newGroupTitle.value = '';
+                    newGroupHasSubcategories.value = false;
+                    newGroupTokenScope.value = 'common';
+                    showCreateGroupModal.value = true;
+                };
+
+                const createTokenGroup = async () => {
+                    const rawFile = (newGroupFileName.value || '').trim();
+                    const titleRu = (newGroupTitle.value || '').trim();
+
+                    if (!rawFile || !titleRu) {
+                        alert('Заполните: название файла и title.');
+                        return;
+                    }
+
+                    const safeName = rawFile.replace(/[\\/:*?"<>|]/g, '_').replace(/\s+/g, '_');
+                    const fileName = safeName.toLowerCase().endsWith('.json') ? safeName.toLowerCase() : `${safeName.toLowerCase()}.json`;
+
+                    try {
+                        const tokensDir = await rootContentHandle.value.getDirectoryHandle('Tokens', { create: true });
+                        const fileHandle = await tokensDir.getFileHandle(fileName, { create: false }).catch(() => null);
+                        if (fileHandle) {
+                            alert('Файл с таким именем уже существует.');
+                            return;
+                        }
+
+                        const createdHandle = await tokensDir.getFileHandle(fileName, { create: true });
+                        const slug = fileName.replace(/\.json$/i, '');
+                        const titleKey = window.ContentEditorUid.generateUid('meta');
+                        const payload = {
+                            meta: {
+                                title: titleKey,
+                                has_subcategories: newGroupHasSubcategories.value,
+                                active: true,
+                                subcategories: {}
+                            }
+                        };
+
+                        if (newGroupHasSubcategories.value) {
+                            payload[slug] = {};
+                        } else {
+                            payload[slug] = [];
+                        }
+
+                        const writable = await createdHandle.createWritable();
+                        await writable.write(JSON.stringify(payload, null, 2));
+                        await writable.close();
+
+                        const createdItem = {
+                            handle: createdHandle,
+                            name: fileName,
+                            displayName: titleRu,
+                            active: true
+                        };
+
+                        await upsertMetaTranslation(rootContentHandle.value, fileName, titleKey, titleRu);
+
+                        tokenFiles.value.push(createdItem);
+                        tokenFiles.value.sort((a, b) => a.displayName.localeCompare(b.displayName, 'ru'));
+                        showCreateGroupModal.value = false;
+                        await selectFile(createdItem);
+                    } catch (e) {
+                        console.error('Ошибка создания группы токенов:', e);
+                        alert('Не удалось создать группу токенов.');
+                    }
+                };
+
+                const applyMassiveImport = async () => {
+                    try {
+                        const payload = JSON.parse(massImportJson.value || '{}');
+                        const payloadLangs = Object.keys(payload).filter(
+                            (lang) => Array.isArray(payload[lang]) && payload[lang].length > 0
+                        );
+                        if (!payloadLangs.length) {
+                            alert('Нужен хотя бы один языковой ключ с массивом слов, например "en" или "ru".');
+                            return;
+                        }
+
+                        if (!importCategory.value || !importSubcategory.value) {
+                            alert(fileHasSubcategories.value ? 'Выберите категорию и подкатегорию.' : 'Выберите категорию.');
+                            return;
+                        }
+
+                        if (!fileHasSubcategories.value) {
+                            importSubcategory.value = Object.keys(visualData.value[importCategory.value] || {})[0] || '';
+                        }
+
+                        if (!visualData.value[importCategory.value][importSubcategory.value]) {
+                            visualData.value[importCategory.value][importSubcategory.value] = [];
+                        }
+
+                        payloadLangs.forEach(ensureLanguageExists);
+                        languages.value.forEach(ensureLanguageExists);
+
+                        const baseLang = payloadLangs[0];
+                        const baseLength = payload[baseLang].length;
+                        const usedIds = await collectUsedTokenIds();
+                        for (let i = 0; i < baseLength; i++) {
+                            const hasAnyValue = payloadLangs.some((lang) => {
+                                const value = payload[lang]?.[i];
+                                return typeof value === 'string' && value.trim() !== '';
+                            });
+                            if (!hasAnyValue) continue;
+
+                            const id = tokensService.generateUniqueTokenId(usedIds);
+                            visualData.value[importCategory.value][importSubcategory.value].push({
+                                id,
+                                active: true
+                            });
+
+                            for (const lang of languages.value) {
+                                const arr = Array.isArray(payload[lang]) ? payload[lang] : [];
+                                const value = arr[i];
+                                translations.value[lang][id] = (typeof value === 'string' && value.trim() !== '') ? value.trim() : null;
+                            }
+                        }
+
+                        massImportJson.value = '';
+                        showImportModal.value = false;
+                    } catch (e) {
+                        alert('Невалидный JSON для импорта.');
+                    }
+                };
+
+                const saveFile = async () => {
+                    if (!selectedFile.value) return;
+                    try {
+                        const payloadToSave = serializeVisualDataForSave();
+                        const writable = await selectedFile.value.handle.createWritable();
+                        await writable.write(JSON.stringify(payloadToSave, null, 2));
+                        await writable.close();
+
+                        // Синхронизируем отображаемое имя файла из перевода meta.title (ключ -> текст)
+                        if (payloadToSave?.meta?.title) {
+                            const titleKey = payloadToSave.meta.title;
+                            const nextTitle = translations.value?.ru?.[titleKey] || titleKey;
+                            selectedFile.value.displayName = nextTitle;
+                            tokenFiles.value = tokenFiles.value.map((f) =>
+                                f.name === selectedFile.value.name ? { ...f, displayName: nextTitle } : f
+                            );
+                            tokenFiles.value.sort((a, b) => a.displayName.localeCompare(b.displayName, 'ru'));
+                        }
+
+                        // Собираем все ID токенов из текущего файла
+                        const currentFileTokens = [];
+                        for (const cat in visualData.value) {
+                            if (cat === 'meta') continue;
+                            for (const sub in visualData.value[cat]) {
+                                const tokenArray = visualData.value[cat][sub];
+                                if (!Array.isArray(tokenArray)) continue;
+                                for (const t of tokenArray) {
+                                    currentFileTokens.push(t.id);
+                                }
+                            }
+                        }
+                        const metaTitleKeys = [];
+                        const fileTitleKey = visualData.value?.meta?.title;
+                        if (typeof fileTitleKey === 'string' && fileTitleKey.trim()) {
+                            metaTitleKeys.push(fileTitleKey);
+                        }
+                        const subMeta = visualData.value?.meta?.subcategories || {};
+                        for (const subInfo of Object.values(subMeta)) {
+                            const subTitleKey = subInfo?.title;
+                            if (typeof subTitleKey === 'string' && subTitleKey.trim()) {
+                                metaTitleKeys.push(subTitleKey);
+                            }
+                        }
+                        const scopedTranslationKeys = [...new Set([...currentFileTokens, ...metaTitleKeys])];
+
+                        // Сохраняем локализацию
+                        if (rootContentHandle.value) {
+                            const langDirHandle = await rootContentHandle.value.getDirectoryHandle('lang', {create: true});
+                            for (const lang of languages.value) {
+                                // Добавляем ключи из текущего файла, если их нет
+                                scopedTranslationKeys.forEach(id => {
+                                    if (translations.value[lang][id] === undefined || translations.value[lang][id] === '') {
+                                        translations.value[lang][id] = null;
+                                    }
+                                });
+
+                                const langDir = await langDirHandle.getDirectoryHandle(lang, {create: true});
+                                const tokensDir = await langDir.getDirectoryHandle('tokens', {create: true});
+                                const tokensFile = await tokensDir.getFileHandle(selectedFile.value.name, {create: true});
+                                const fileScopedTranslations = {};
+                                scopedTranslationKeys.forEach(id => {
+                                    fileScopedTranslations[id] = translations.value[lang][id];
+                                });
+                                const locWritable = await tokensFile.createWritable();
+                                await locWritable.write(JSON.stringify(fileScopedTranslations, null, 2));
+                                await locWritable.close();
+                            }
+                        }
+
+                        saveMessage.value = 'Сохранено успешно!';
+                        setTimeout(() => saveMessage.value = '', 3000);
+                    } catch (e) {
+                        console.error('Ошибка сохранения:', e);
+                        alert('Не удалось сохранить файл. Возможно, нет прав на запись.');
+                    }
+                };
+
+                const collectTokenIdsFromParsed = (parsed) => {
+                    const ids = [];
+                    for (const [category, subcats] of Object.entries(parsed || {})) {
+                        if (category === 'meta') continue;
+                        if (Array.isArray(subcats)) {
+                            for (const token of subcats) {
+                                if (token && typeof token.id === 'string') ids.push(token.id);
+                            }
+                            continue;
+                        }
+                        if (subcats && typeof subcats === 'object') {
+                            for (const tokenArray of Object.values(subcats)) {
+                                if (!Array.isArray(tokenArray)) continue;
+                                for (const token of tokenArray) {
+                                    if (token && typeof token.id === 'string') ids.push(token.id);
+                                }
+                            }
+                        }
+                    }
+                    return ids;
+                };
+
+                const clearFileTokens = async (fileItem) => {
+                    if (!fileItem || !rootContentHandle.value) return;
+                    const ok = confirm(`Очистить все токены в группе "${fileItem.displayName}"?`);
+                    if (!ok) return;
+                    try {
+                        const file = await fileItem.handle.getFile();
+                        const parsed = JSON.parse(await file.text());
+                        const idsToDelete = collectTokenIdsFromParsed(parsed);
+                        const normalized = normalizeVisualDataForEditor(parsed);
+                        const parsedHasSubcategories = parsed?.meta?.has_subcategories === true;
+                        const cleared = {};
+                        for (const [category, value] of Object.entries(normalized || {})) {
+                            if (category === 'meta') continue;
+                            if (parsedHasSubcategories) {
+                                const nextSubcats = {};
+                                for (const subName of Object.keys(value || {})) {
+                                    nextSubcats[subName] = [];
+                                }
+                                cleared[category] = nextSubcats;
+                            } else {
+                                cleared[category] = [];
+                            }
+                        }
+                        cleared.meta = {
+                            ...(parsed?.meta || {}),
+                            has_subcategories: parsedHasSubcategories
+                        };
+                        const writable = await fileItem.handle.createWritable();
+                        await writable.write(JSON.stringify(cleared, null, 2));
+                        await writable.close();
+
+                        const langRoot = await rootContentHandle.value.getDirectoryHandle('lang', { create: true });
+                        for (const lang of languages.value) {
+                            const langDir = await langRoot.getDirectoryHandle(lang, { create: true });
+                            const tokensDir = await langDir.getDirectoryHandle('tokens', { create: true });
+                            const locFileHandle = await tokensDir.getFileHandle(fileItem.name, { create: true });
+                            const locFile = await locFileHandle.getFile();
+                            const locText = await locFile.text();
+                            const locMap = locText.trim() ? JSON.parse(locText) : {};
+                            idsToDelete.forEach((id) => delete locMap[id]);
+                            const locWritable = await locFileHandle.createWritable();
+                            await locWritable.write(JSON.stringify(locMap, null, 2));
+                            await locWritable.close();
+                        }
+
+                        if (selectedFile.value?.name === fileItem.name) {
+                            visualData.value = normalizeVisualDataForEditor(cleared);
+                            await loadTranslationsForSelectedFile();
+                        }
+                        saveMessage.value = 'Группа очищена';
+                        setTimeout(() => saveMessage.value = '', 3000);
+                    } catch (e) {
+                        console.error('Ошибка очистки группы:', e);
+                        alert('Не удалось очистить группу.');
+                    }
+                };
+
+                const clearSubcategoryTokens = (category, subcategory) => {
+                    const target = visualData.value?.[category]?.[subcategory];
+                    if (!Array.isArray(target)) return;
+                    const ok = confirm('Очистить токены в этой подгруппе?');
+                    if (!ok) return;
+                    const idsToDelete = target.map((t) => t?.id).filter((id) => typeof id === 'string');
+                    visualData.value[category][subcategory] = [];
+                    for (const lang of languages.value) {
+                        if (!translations.value?.[lang]) continue;
+                        idsToDelete.forEach((id) => delete translations.value[lang][id]);
+                    }
+                };
+
+                const toggleFileActive = async (fileItem) => {
+                    if (!fileItem?.handle) return;
+                    try {
+                        const file = await fileItem.handle.getFile();
+                        const parsed = JSON.parse(await file.text());
+                        parsed.meta = parsed.meta || {};
+                        const current = parsed.meta.active !== false;
+                        parsed.meta.active = !current;
+                        const writable = await fileItem.handle.createWritable();
+                        await writable.write(JSON.stringify(parsed, null, 2));
+                        await writable.close();
+
+                        tokenFiles.value = tokenFiles.value.map((f) =>
+                            f.name === fileItem.name ? { ...f, active: parsed.meta.active } : f
+                        );
+                        if (selectedFile.value?.name === fileItem.name) {
+                            selectedFile.value.active = parsed.meta.active;
+                            visualData.value.meta = visualData.value.meta || {};
+                            visualData.value.meta.active = parsed.meta.active;
+                        }
+                    } catch (e) {
+                        alert('Не удалось изменить active у группы.');
+                    }
+                };
+
+                const toggleSubcategoryActive = (category, subcategory) => {
+                    visualData.value.meta = visualData.value.meta || {};
+                    visualData.value.meta.subcategories = visualData.value.meta.subcategories || {};
+                    const current = visualData.value.meta.subcategories[subcategory]?.active !== false;
+                    visualData.value.meta.subcategories[subcategory] = {
+                        ...(visualData.value.meta.subcategories[subcategory] || {}),
+                        active: !current
+                    };
+                };
+
+                const removeToken = (category, subcategory, index) => {
+                    const confirmDelete = confirm('Удалить этот токен?');
+                    if (!confirmDelete) return;
+                    visualData.value[category][subcategory].splice(index, 1);
+                };
+
+                const moveToken = (category, subcategory, index, direction) => {
+                    const arr = visualData.value?.[category]?.[subcategory];
+                    if (!Array.isArray(arr)) return;
+
+                    const swapWith = direction === 'up' ? index - 1 : index + 1;
+                    if (swapWith < 0 || swapWith >= arr.length) return;
+
+                    const temp = arr[index];
+                    arr[index] = arr[swapWith];
+                    arr[swapWith] = temp;
+                };
+
+                const toggleTokenActive = (category, subcategory, index) => {
+                    const arr = visualData.value?.[category]?.[subcategory];
+                    if (!Array.isArray(arr) || !arr[index] || typeof arr[index].id !== 'string') return;
+                    const token = arr[index];
+                    arr[index] = {
+                        ...token,
+                        active: token.active === false
+                    };
+                };
+
+                const openAddTokenModal = (category, subcategory, index) => {
+                    addTokenContext.value = { category, subcategory, index };
+                    const draft = {};
+                    visibleLanguageList.value.forEach((lang) => {
+                        draft[lang] = '';
+                    });
+                    newTokenModalDraft.value = draft;
+                    showAddTokenModal.value = true;
+                };
+
+                const updateTokenDraftValue = ({ lang, value }) => {
+                    newTokenModalDraft.value = {
+                        ...newTokenModalDraft.value,
+                        [lang]: value
+                    };
+                };
+
+                const createTokenAfterCard = async () => {
+                    if (!addTokenContext.value) return;
+
+                    const { category, subcategory, index } = addTokenContext.value;
+                    const targetArray = visualData.value?.[category]?.[subcategory];
+                    if (!Array.isArray(targetArray)) return;
+
+                    const hasAnyValue = Object.values(newTokenModalDraft.value || {}).some(
+                        (v) => typeof v === 'string' && v.trim()
+                    );
+                    if (!hasAnyValue) {
+                        alert('Заполни хотя бы одно поле перевода.');
+                        return;
+                    }
+
+                    const usedIds = await collectUsedTokenIds();
+                    const id = tokensService.generateUniqueTokenId(usedIds);
+                    targetArray.splice(index + 1, 0, { id, active: true });
+
+                    for (const lang of languages.value) {
+                        ensureLanguageExists(lang);
+                        const raw = newTokenModalDraft.value?.[lang];
+                        const value = (typeof raw === 'string' && raw.trim()) ? raw.trim() : null;
+                        translations.value[lang][id] = value;
+                    }
+
+                    addTokenContext.value = null;
+                    newTokenModalDraft.value = {};
+                    showAddTokenModal.value = false;
+                };
+
+                const openCreateSubcategoryModal = (category) => {
+                    createSubcategoryCategory.value = category;
+                    newSubcategorySlug.value = '';
+                    newSubcategoryTitle.value = '';
+                    showCreateSubcategoryModal.value = true;
+                };
+
+                const openEditGroupTitleModal = async (fileItem) => {
+                    if (!rootContentHandle.value || !fileItem) return;
+                    try {
+                        const file = await fileItem.handle.getFile();
+                        const parsed = JSON.parse(await file.text());
+                        const titleKey = parsed?.meta?.title;
+                        if (!titleKey) {
+                            alert('У этой группы нет title-ключа в meta.');
+                            return;
+                        }
+                        const ruMap = await readLanguageMapForFile(rootContentHandle.value, 'ru', fileItem.name);
+                        editTitleHeading.value = `Заголовок группы: ${ruMap.map?.[titleKey] || fileItem.displayName}`;
+                        const values = {};
+                        for (const lang of visibleLanguageList.value) {
+                            const langMap = await readLanguageMapForFile(rootContentHandle.value, lang, fileItem.name);
+                            values[lang] = langMap.map?.[titleKey] ?? '';
+                        }
+                        editTitleValues.value = values;
+                        editTitleTarget.value = { type: 'file', fileName: fileItem.name, titleKey };
+                        showEditTitleModal.value = true;
+                    } catch (e) {
+                        alert('Не удалось открыть редактирование заголовка.');
+                    }
+                };
+
+                const openEditSubcategoryTitleModal = async (category, subcategory) => {
+                    if (!selectedFile.value || !rootContentHandle.value) return;
+                    const titleKey = visualData.value?.meta?.subcategories?.[subcategory]?.title;
+                    if (!titleKey) {
+                        alert('У этой группы нет title-ключа в meta.');
+                        return;
+                    }
+                    const ruMap = await readLanguageMapForFile(rootContentHandle.value, 'ru', selectedFile.value.name);
+                    editTitleHeading.value = `Заголовок подгруппы: ${ruMap.map?.[titleKey] || subcategory}`;
+                    const values = {};
+                    for (const lang of visibleLanguageList.value) {
+                        const langMap = await readLanguageMapForFile(rootContentHandle.value, lang, selectedFile.value.name);
+                        values[lang] = langMap.map?.[titleKey] ?? '';
+                    }
+                    editTitleValues.value = values;
+                    editTitleTarget.value = { type: 'subcategory', fileName: selectedFile.value.name, titleKey, subcategory };
+                    showEditTitleModal.value = true;
+                };
+
+                const updateEditTitleValue = ({ lang, value }) => {
+                    editTitleValues.value = {
+                        ...editTitleValues.value,
+                        [lang]: value
+                    };
+                };
+
+                const saveEditedTitle = async () => {
+                    if (!editTitleTarget.value || !rootContentHandle.value) {
+                        return;
+                    }
+                    const hasAnyValue = Object.values(editTitleValues.value || {}).some(
+                        (v) => typeof v === 'string' && v.trim()
+                    );
+                    if (!hasAnyValue) {
+                        alert('Заполни хотя бы один title.');
+                        return;
+                    }
+
+                    const { type, fileName, titleKey } = editTitleTarget.value;
+                    for (const lang of languages.value) {
+                        const { fileHandle, map } = await readLanguageMapForFile(rootContentHandle.value, lang, fileName);
+                        if (Object.prototype.hasOwnProperty.call(editTitleValues.value || {}, lang)) {
+                            const raw = editTitleValues.value?.[lang];
+                            map[titleKey] = (typeof raw === 'string' && raw.trim()) ? raw.trim() : null;
+                        }
+                        await writeLanguageMap(fileHandle, map);
+                    }
+
+                    if (type === 'file') {
+                        const nextRu = editTitleValues.value?.ru?.trim();
+                        tokenFiles.value = tokenFiles.value.map((f) =>
+                            f.name === fileName ? { ...f, displayName: nextRu || f.displayName } : f
+                        );
+                        if (selectedFile.value?.name === fileName) {
+                            selectedFile.value.displayName = nextRu || selectedFile.value.displayName;
+                        }
+                    }
+
+                    await loadTranslationsForSelectedFile();
+                    showEditTitleModal.value = false;
+                };
+
+                const createSubcategoryFromModal = async () => {
+                    if (!fileHasSubcategories.value) return;
+                    const category = createSubcategoryCategory.value;
+                    if (!category || !visualData.value?.[category]) return;
+
+                    const rawSlug = (newSubcategorySlug.value || '').trim();
+                    const rawTitleRu = (newSubcategoryTitle.value || '').trim();
+                    if (!rawSlug || !rawTitleRu) {
+                        alert('Заполни slug и title группы.');
+                        return;
+                    }
+
+                    const slug = rawSlug.toLowerCase().replace(/[^\w-]/g, '_');
+                    if (visualData.value[category][slug]) {
+                        alert('Группа с таким slug уже существует.');
+                        return;
+                    }
+
+                    visualData.value[category][slug] = [];
+                    visualData.value.meta = visualData.value.meta || {};
+                    visualData.value.meta.subcategories = visualData.value.meta.subcategories || {};
+                    const subTitleKey = window.ContentEditorUid.generateUid('meta');
+                    visualData.value.meta.subcategories[slug] = { title: subTitleKey, active: true };
+                    await upsertMetaTranslation(rootContentHandle.value, selectedFile.value.name, subTitleKey, rawTitleRu);
+                    showCreateSubcategoryModal.value = false;
+                };
+
+                const deleteSubcategory = async (category, subcategory) => {
+                    if (!fileHasSubcategories.value) return;
+                    const titleKey = visualData.value?.meta?.subcategories?.[subcategory]?.title;
+                    const displayTitle = translations.value?.ru?.[titleKey] || subcategory;
+                    if(confirm(`Удалить группу токенов "${displayTitle}"?`)) {
+                        delete visualData.value[category][subcategory];
+                        if (visualData.value?.meta?.subcategories?.[subcategory]) {
+                            delete visualData.value.meta.subcategories[subcategory];
+                        }
+                        if (titleKey && rootContentHandle.value && selectedFile.value?.name) {
+                            for (const lang of languages.value) {
+                                const { fileHandle, map } = await readLanguageMapForFile(rootContentHandle.value, lang, selectedFile.value.name);
+                                if (map[titleKey] !== undefined) {
+                                    delete map[titleKey];
+                                    await writeLanguageMap(fileHandle, map);
+                                }
+                            }
+                        }
+                    }
+                };
+
+                const deleteFileRow = async (fileItem) => {
+                    if (!fileItem || !rootContentHandle.value) return;
+                    const confirmDelete = confirm(`Удалить группу токенов "${fileItem.displayName}"?`);
+                    if (!confirmDelete) return;
+                    try {
+                        const tokensDir = await rootContentHandle.value.getDirectoryHandle('Tokens', { create: false });
+                        await tokensDir.removeEntry(fileItem.name);
+
+                        // Удаляем связанные локализации: Content/lang/<lang>/tokens/<file>.json
+                        const langRoot = await rootContentHandle.value.getDirectoryHandle('lang', { create: false }).catch(() => null);
+                        if (langRoot) {
+                            for await (const langEntry of langRoot.values()) {
+                                if (langEntry.kind !== 'directory') continue;
+                                try {
+                                    const langTokensDir = await langEntry.getDirectoryHandle('tokens', { create: false }).catch(() => null);
+                                    if (!langTokensDir) continue;
+                                    await langTokensDir.removeEntry(fileItem.name).catch(() => {});
+                                } catch (e) {}
+                            }
+                        }
+
+                        tokenFiles.value = tokenFiles.value.filter((f) => f.name !== fileItem.name);
+                        if (selectedFile.value?.name === fileItem.name) {
+                            selectedFile.value = null;
+                            visualData.value = {};
+                        }
+                        saveMessage.value = 'Файл удален';
+                        setTimeout(() => saveMessage.value = '', 3000);
+                    } catch (e) {
+                        console.error('Ошибка удаления файла:', e);
+                        alert('Не удалось удалить файл.');
+                    }
+                };
+
+
+                const tabTitle = computed(() => {
+                    const titles = {
+                        'tokens': 'Редактор токенов',
+                        'scenarios': 'Конструктор сценариев',
+                        'users': 'Редактор пользователей'
+                    };
+                    return titles[currentTab.value];
+                });
+
+                const getDisplayNameFromData = async (contentHandle, fileName, parsed) => {
+                    const fallback = fileName.replace(/\.json$/i, '');
+                    const titleKey = parsed?.meta?.title;
+                    if (typeof titleKey === 'string' && titleKey.trim()) {
+                        const ruMap = await readLanguageMapForFile(contentHandle, 'ru', fileName, false).catch(() => null);
+                        const resolved = ruMap?.map?.[titleKey];
+                        if (typeof resolved === 'string' && resolved.trim()) return resolved.trim();
+                    }
+                    return fallback;
+                };
+
+                // File System Access API
+                const selectProjectFolder = async () => {
+                    try {
+                        // Запрашиваем доступ к папке
+                        const handle = await window.showDirectoryPicker({
+                            mode: 'readwrite', // Просим сразу права на запись
+                            startIn: 'desktop'
+                        });
+                        dirHandle.value = handle;
+                        await idbKeyval.set('projectDirHandle', handle);
+                        await scanFolder(handle);
+                    } catch (error) {
+                        console.error('Ошибка выбора папки:', error);
+                        if (error.name !== 'AbortError') {
+                            alert('Не удалось получить доступ к папке. Убедитесь, что используете браузер на базе Chromium (Chrome, Edge).');
+                        }
+                    }
+                };
+
+                onMounted(async () => {
+                    try {
+                        const handle = await idbKeyval.get('projectDirHandle');
+                        if (handle) {
+                            // Проверяем и запрашиваем права, если они слетели
+                            const options = { mode: 'readwrite' };
+                            if ((await handle.queryPermission(options)) !== 'granted') {
+                                const permission = await handle.requestPermission(options);
+                                if (permission !== 'granted') {
+                                    return; // Пользователь не дал права
+                                }
+                            }
+                            dirHandle.value = handle;
+                            await scanFolder(handle);
+                        }
+                    } catch(e) {
+                        console.error('Ошибка при восстановлении папки:', e);
+                    }
+                });
+
+                const scanFolder = async (handle) => {
+                    tokenFiles.value = [];
+                    scenarioFiles.value = [];
+                    users.value = [];
+                    
+                    try {
+                        // Проверяем наличие папки Content
+                        const contentHandle = await handle.getDirectoryHandle('Content', { create: false }).catch(() => null);
+                        if (contentHandle) {
+                            rootContentHandle.value = contentHandle;
+                            // Ищем Content/Tokens
+                            const tokensHandle = await fsService.getOptionalDirectoryHandle(contentHandle, 'Tokens');
+                            if (tokensHandle) {
+                                const tokenJsonFiles = await fsService.listJsonFiles(tokensHandle);
+                                for (const entry of tokenJsonFiles) {
+                                    let displayName = entry.name.replace(/\.json$/i, '');
+                                    const parsed = await fsService.readJsonFromFileHandle(entry, {});
+                                    displayName = await getDisplayNameFromData(contentHandle, entry.name, parsed);
+
+                                    tokenFiles.value.push({
+                                        handle: entry,
+                                        name: entry.name,
+                                        displayName,
+                                        tokenScope: parsed?.meta?.scope === 'context' ? 'context' : 'common',
+                                        active: parsed?.meta?.active !== false
+                                    });
+                                }
+                                tokenFiles.value.sort((a, b) => a.displayName.localeCompare(b.displayName, 'ru'));
+                            }
+
+                            // Ищем Content/Scenarios
+                            const scenariosHandle = await fsService.getOptionalDirectoryHandle(contentHandle, 'Scenarios');
+                            if (scenariosHandle) {
+                                const scenarioJsonFiles = await fsService.listJsonFiles(scenariosHandle);
+                                scenarioFiles.value = scenarioJsonFiles.map((entry) => ({
+                                    handle: entry,
+                                    name: entry.name,
+                                    displayName: entry.name.replace(/\.json$/i, '')
+                                }));
+                            }
+
+                            // Ищем Content/Users
+                            const usersHandle = await fsService.getOptionalDirectoryHandle(contentHandle, 'Users');
+                            if (usersHandle) {
+                                const userJsonFiles = await fsService.listJsonFiles(usersHandle);
+                                for (const entry of userJsonFiles) {
+                                    const parsed = await fsService.readJsonFromFileHandle(entry, {});
+                                    const records = Array.isArray(parsed) ? parsed : Object.values(parsed);
+                                    for (const rawUser of records) {
+                                        users.value.push(usersService.normalizeUserRecord(rawUser));
+                                    }
+                                }
+                            }
+
+                            if (!users.value.length) {
+                                users.value.push(usersService.createUserDraft());
+                            }
+
+                            // Ищем Content/lang/
+                            languages.value = [];
+                            translations.value = {};
+                            const langHandle = await contentHandle.getDirectoryHandle('lang', { create: false }).catch(() => null);
+                            if (langHandle) {
+                                for await (const entry of langHandle.values()) {
+                                    if (entry.kind === 'directory') {
+                                        languages.value.push(entry.name);
+                                        translations.value[entry.name] = {};
+                                    }
+                                }
+                            }
+                            const storedVisible = localStorage.getItem('deepak_editor_visible_languages');
+                            if (storedVisible) {
+                                try {
+                                    const parsedVisible = JSON.parse(storedVisible);
+                                    if (Array.isArray(parsedVisible)) {
+                                        visibleLanguages.value = parsedVisible.filter((lang) => languages.value.includes(lang));
+                                    }
+                                } catch (e) {}
+                            }
+                            if (!visibleLanguages.value.length) {
+                                visibleLanguages.value = [...languages.value];
+                                persistVisibleLanguages();
+                            }
+                            await migrateLegacyTranslations(contentHandle);
+                        } else {
+                            alert("Папка 'Content' не найдена внутри выбранной директории. Убедитесь, что вы выбрали правильную папку Assets или создайте структуру папок.");
+                        }
+                    } catch (e) {
+                        console.error('Ошибка при сканировании:', e);
+                    }
+                };
+
+                const migrateLegacyTranslations = async (contentHandle) => {
+                    try {
+                        const tokensHandle = await contentHandle.getDirectoryHandle('Tokens', { create: false }).catch(() => null);
+                        const langRoot = await contentHandle.getDirectoryHandle('lang', { create: true });
+                        if (!tokensHandle) return;
+
+                        const tokenIdsByFile = {};
+                        for await (const entry of tokensHandle.values()) {
+                            if (entry.kind !== 'file' || !entry.name.endsWith('.json')) continue;
+                            try {
+                                const file = await entry.getFile();
+                                const text = await file.text();
+                                const parsed = JSON.parse(text);
+                                const ids = [];
+                                for (const [cat, subcats] of Object.entries(parsed)) {
+                                    if (cat === 'meta' || typeof subcats !== 'object' || !subcats) continue;
+                                    for (const tokenArray of Object.values(subcats)) {
+                                        if (!Array.isArray(tokenArray)) continue;
+                                        for (const token of tokenArray) {
+                                            if (token && typeof token.id === 'string') ids.push(token.id);
+                                        }
+                                    }
+                                }
+                                tokenIdsByFile[entry.name] = ids;
+                            } catch (e) {}
+                        }
+
+                        for (const lang of languages.value) {
+                            const langDir = await langRoot.getDirectoryHandle(lang, { create: true });
+                            const legacyFileHandle = await langDir.getFileHandle('tokens.json', { create: false }).catch(() => null);
+                            if (!legacyFileHandle) continue;
+
+                            let legacyMap = {};
+                            try {
+                                const legacyFile = await legacyFileHandle.getFile();
+                                const legacyText = await legacyFile.text();
+                                legacyMap = legacyText.trim() ? JSON.parse(legacyText) : {};
+                            } catch (e) {
+                                legacyMap = {};
+                            }
+
+                            const perFileDir = await langDir.getDirectoryHandle('tokens', { create: true });
+                            for (const [fileName, ids] of Object.entries(tokenIdsByFile)) {
+                                const perFileHandle = await perFileDir.getFileHandle(fileName, { create: true });
+                                let perFileMap = {};
+                                try {
+                                    const perFile = await perFileHandle.getFile();
+                                    const perText = await perFile.text();
+                                    perFileMap = perText.trim() ? JSON.parse(perText) : {};
+                                } catch (e) {
+                                    perFileMap = {};
+                                }
+
+                                let changed = false;
+                                for (const id of ids) {
+                                    if (perFileMap[id] === undefined && legacyMap[id] !== undefined) {
+                                        perFileMap[id] = legacyMap[id];
+                                        changed = true;
+                                    }
+                                }
+                                if (changed) {
+                                    const writable = await perFileHandle.createWritable();
+                                    await writable.write(JSON.stringify(perFileMap, null, 2));
+                                    await writable.close();
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Ошибка миграции legacy-переводов:', e);
+                    }
+                };
+
+                return {
+                    currentTab,
+                    tabTitle,
+                    dirHandle,
+                    tokenFiles,
+                    scenarioFiles,
+                    users,
+                    selectProjectFolder,
+                    selectedFile,
+                    categoryNames,
+                    visualDataEntries,
+                    visualData,
+                    newTokenInputs,
+                    saveMessage,
+                    languages,
+                    translations,
+                    showCreateGroupModal,
+                    showImportModal,
+                    showAddTokenModal,
+                    showCreateSubcategoryModal,
+                    showEditTitleModal,
+                    massImportJson,
+                    importCategory,
+                    importSubcategory,
+                    newGroupFileName,
+                    newGroupTitle,
+                    newGroupHasSubcategories,
+                    newGroupTokenScope,
+                    newTokenModalDraft,
+                    newSubcategorySlug,
+                    newSubcategoryTitle,
+                    editTitleHeading,
+                    editTitleValues,
+                    importSubcategoryOptions,
+                    fileHasSubcategories,
+                    addLanguage,
+                    openLanguagesModal,
+                    showLanguagesModal,
+                    newLanguageCode,
+                    visibleLanguageList,
+                    primaryLanguage,
+                    subcategoryMeta,
+                    isLanguageVisible,
+                    toggleLanguageVisibility,
+                    openMassiveImport,
+                    openCreateGroupModal,
+                    createTokenGroup,
+                    applyMassiveImport,
+                    selectFile,
+                    saveFile,
+                    removeToken,
+                    moveToken,
+                    toggleTokenActive,
+                    openAddTokenModal,
+                    updateTokenDraftValue,
+                    createTokenAfterCard,
+                    openCreateSubcategoryModal,
+                    createSubcategoryFromModal,
+                    openEditGroupTitleModal,
+                    openEditSubcategoryTitleModal,
+                    updateEditTitleValue,
+                    saveEditedTitle,
+                    clearFileTokens,
+                    clearSubcategoryTokens,
+                    toggleFileActive,
+                    toggleSubcategoryActive,
+                    deleteSubcategory,
+                    deleteFileRow
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

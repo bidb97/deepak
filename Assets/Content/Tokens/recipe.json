@@ -1,0 +1,70 @@
+{
+  "recipe": {
+    "soup": [
+      {
+        "id": "borscht",
+        "active": true
+      },
+      {
+        "id": "beetroot",
+        "active": true
+      },
+      {
+        "id": "beef",
+        "active": true
+      },
+      {
+        "id": "cabbage",
+        "active": true
+      },
+      {
+        "id": "broth",
+        "active": true
+      },
+      {
+        "id": "boil",
+        "active": true
+      },
+      {
+        "id": "noodles",
+        "active": true
+      }
+    ],
+    "baking": [
+      {
+        "id": "flour",
+        "active": true
+      },
+      {
+        "id": "dough",
+        "active": true
+      },
+      {
+        "id": "oven",
+        "active": true
+      },
+      {
+        "id": "sugar",
+        "active": true
+      }
+    ],
+    "test": []
+  },
+  "meta": {
+    "title": "meta_recipe_title",
+    "has_subcategories": true,
+    "scope": "context",
+    "subcategories": {
+      "soup": {
+        "title": "meta_recipe_soup_title",
+        "active": false
+      },
+      "baking": {
+        "title": "meta_recipe_baking_title"
+      },
+      "test": {
+        "title": "meta_recipe_test_title"
+      }
+    }
+  }
+}
