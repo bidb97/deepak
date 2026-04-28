@@ -1,9 +1,33 @@
 {
-  "tok_89334261270f4e40995ba8c8175173db": "конечно",
-  "tok_94b4d12ac1104165a325d068f6f61f18": "супер",
-  "tok_3cc35aab3cde42109d9cae4a657d39c9": "давай",
-  "tok_ff3d3e93e6b7453696ff0441a1d0cf09": "разберем",
-  "tok_fa95c273cee24f1fb365966994f8c0f4": "вопрос",
-  "tok_99b11243a9694928b0bc96a88a205c68": "по шагам",
-  "Вводные": "Вступления"
+  "tok_89334261270f4e40995ba8c8175173db": {
+    "base": "конечно",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_94b4d12ac1104165a325d068f6f61f18": {
+    "base": "супер",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_3cc35aab3cde42109d9cae4a657d39c9": {
+    "base": "давай",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_ff3d3e93e6b7453696ff0441a1d0cf09": {
+    "base": "разберем",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_fa95c273cee24f1fb365966994f8c0f4": {
+    "base": "вопрос",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_99b11243a9694928b0bc96a88a205c68": {
+    "base": "по шагам",
+    "forms": {},
+    "pluralization": {}
+  },
+  "meta_87ceb9ec64de472e942b284b78f2254f": "Вводные"
 }

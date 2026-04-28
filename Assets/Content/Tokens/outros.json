@@ -1,17 +1,20 @@
 {
   "outros": [
     {
-      "id": "tok_9cb885a8a8e44031b49a8dfe8796bc4e"
+      "id": "tok_9cb885a8a8e44031b49a8dfe8796bc4e",
+      "active": true
     },
     {
-      "id": "ready_to_help"
+      "id": "ready_to_help",
+      "active": true
     },
     {
-      "id": "tok_acc091266d63461db03eaf36ec7cb432"
+      "id": "tok_acc091266d63461db03eaf36ec7cb432",
+      "active": true
     }
   ],
   "meta": {
-    "title": "Завершения",
+    "title": "meta_489fcb963ea3472da7c4854ff277a88e",
     "has_subcategories": false,
     "scope": "common",
     "active": true

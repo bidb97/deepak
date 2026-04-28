@@ -1,79 +1,379 @@
 {
-  "tok_277de4a122be4038b6d42ebb8607874d": "i",
-  "tok_17afedd9f23c450c8f26030d3e111904": "you",
-  "tok_f0460ce35a3b4c118f727f9081b9092d": "we",
-  "tok_df2dba205a4c4e59aa267fb6d72ffc26": "they",
-  "tok_63304ccbe073442fb38583d82e2f75bf": "he",
-  "tok_aaa6579a5f0944acbbae295a7dec208e": "she",
-  "tok_b97c4b2bf425437ab1b1e1920a818b1b": "it",
-  "tok_c98351619d74475f9e51d901d4500085": "my",
-  "tok_c9190f110fe6414a813d7071a607c30d": "your",
-  "tok_c374f53d37a94c2fa5da329975cc5b05": "our",
-  "tok_bad54c27870c4736acc4a986d66d6f18": "their",
-  "tok_52dd910ec52f4ea89172b648bb83fa2b": "me",
-  "tok_38cacf7a2cfb46c3a06fd53d4bc5629b": "us",
-  "tok_0215cef5302c49e383c34b1a0fa9f972": "them",
-  "tok_eeea8d4c67b54be49e69686d920b79d5": "this",
-  "tok_3981acb04a5f4408a6e5ae772f864dfc": "that",
-  "tok_9d02ff90bef748ceb096f43523fc5d6b": "these",
-  "tok_3c21a9b8c0034949945252ccd181e740": "those",
-  "tok_4d813d8976804619896fd275101169a6": "who",
-  "tok_53db2f4661ab4f739a27884bc4fde549": "what",
-  "tok_8d974088f6a3481081889f78c59ab48b": "which",
-  "tok_2c0b1240adee4feda8acfb4e37d86db4": "where",
-  "tok_88f5e84f927846b09102458fe8bcf6ec": "when",
-  "tok_7c6e7701f9df455cb36bf6f77fbba209": "why",
-  "tok_60dfc9e3dea1447bb7a576b331fed34f": "how",
-  "tok_d2390790af3947a9904d84a7e325173c": "if",
-  "tok_5802f8febcbe47b891b9bfa6d50fcbec": "then",
-  "tok_5064bc3215ee48d683970326ea31c0d1": "and",
-  "tok_1099009179f24a858e7bd1c552948b27": "or",
-  "tok_9e1ad11c5677429699477ba919ce624e": "but",
-  "tok_06f78b8c320a48b6ab158b58c92952b4": "because",
-  "tok_b95145ea7a524b07955def4c46785fd5": "so",
-  "tok_e384b9e99a594a3c92a64abb42f8de87": "though",
-  "tok_c5e9208af2dc49019dd675564a9acd0f": "while",
-  "tok_7879d700c0f04146a0518e98ebeca2e2": "to",
-  "tok_8019b1ff21224eb5ad2ddfdad374098f": "for",
-  "tok_48a43b8ba6f14a3a8517f530689bac4a": "with",
-  "tok_1e1dc4e43c4c40f089622681e5591c91": "without",
-  "tok_f5ad782fc1e34b02a4c15a0eb3854261": "from",
-  "tok_3d758049f20a433d8c283e22cfaf7632": "into",
-  "tok_f7446c39e66c468fbe656a791f664957": "onto",
-  "tok_12b44a9a5ebb47ea96e487030bb19185": "in",
-  "tok_0d726a9aa5ec4458865625b3aaf52538": "on",
-  "tok_04c257b636944e8aa834d12b895eafef": "at",
-  "tok_02c8b999177b49819d62365c6bd2fa06": "by",
-  "tok_82359b5db7324bc2b990c9ffcdc5a0a9": "about",
-  "tok_503bb62df9a64d29b875e9bf814c7c37": "of",
-  "tok_63bf401960b6438b97e4bb061eb26a58": "as",
-  "tok_59ae4abe67ee4e9a8f5bd6cb6e95962b": "through",
-  "tok_387e0a3a03de415593f797840613f062": "before",
-  "tok_86f39dad528e41a08ec1cfb80f5bb169": "after",
-  "tok_e4bca1243a6d4cf8ad54c43b6a4e681e": "during",
-  "tok_6c59991f397b4be892a959f03f51651a": "is",
-  "tok_268264516a0c4e2ebe2338a59d481a4f": "are",
-  "tok_e1255294353641f48d3ab476fabeb383": "was",
-  "tok_a97d95f075834b1fab47446a79f470ee": "were",
-  "tok_ea10087dfea94236b4f1d9082e5ded94": "be",
-  "tok_d78a90f3aaa84ab795ae532a8b7e4ce6": "been",
-  "tok_8af7dcda3c994f50a90fd2e4211e836e": "being",
-  "tok_233011cb833b4549a14538896427702d": "do",
-  "tok_e387b9f8bd3c47d6852531454bd38345": "does",
-  "tok_2917645d3596440f8324374a4fc9fa5e": "did",
-  "tok_e6242766dc49493f8c1c3ef9e4c029c9": "can",
-  "tok_5a6c63cd3e594be18d6b34b9a483180c": "could",
-  "tok_23baf9f97e604e52831630f288bb7f6b": "will",
-  "tok_e09bf40adfbb4a2da9394cd59c88c454": "would",
-  "tok_c645a2cefc434cc0af14e1fd5c333749": "should",
-  "tok_ca1808b0277649a2b0ab1afef2bc4cc6": "must",
-  "tok_f30426204ea4477ea8ec6fd02b19c460": "have",
-  "tok_72aeea7af2f541b8a2260f4c96213d3a": "has",
-  "tok_93fce02f739c4a3eb9e4f81bed60aece": "had",
-  "tok_1fd3fd8573fe47d5b1703d0873b3d744": "not",
-  "tok_536a222d47a246a3800b24503ba4750f": "no",
-  "tok_cd8e4e8619de4502a0d764099f382dec": "yes",
-  "tok_f21d2d8b0243406fa18f3e9f21e8cb55": "please",
+  "tok_277de4a122be4038b6d42ebb8607874d": {
+    "base": "i",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_17afedd9f23c450c8f26030d3e111904": {
+    "base": "you",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_f0460ce35a3b4c118f727f9081b9092d": {
+    "base": "we",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_df2dba205a4c4e59aa267fb6d72ffc26": {
+    "base": "they",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_63304ccbe073442fb38583d82e2f75bf": {
+    "base": "he",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_aaa6579a5f0944acbbae295a7dec208e": {
+    "base": "she",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_b97c4b2bf425437ab1b1e1920a818b1b": {
+    "base": "it",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_c98351619d74475f9e51d901d4500085": {
+    "base": "my",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_c9190f110fe6414a813d7071a607c30d": {
+    "base": "your",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_c374f53d37a94c2fa5da329975cc5b05": {
+    "base": "our",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_bad54c27870c4736acc4a986d66d6f18": {
+    "base": "their",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_52dd910ec52f4ea89172b648bb83fa2b": {
+    "base": "me",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_38cacf7a2cfb46c3a06fd53d4bc5629b": {
+    "base": "us",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_0215cef5302c49e383c34b1a0fa9f972": {
+    "base": "them",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_eeea8d4c67b54be49e69686d920b79d5": {
+    "base": "this",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_3981acb04a5f4408a6e5ae772f864dfc": {
+    "base": "that",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_9d02ff90bef748ceb096f43523fc5d6b": {
+    "base": "these",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_3c21a9b8c0034949945252ccd181e740": {
+    "base": "those",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_4d813d8976804619896fd275101169a6": {
+    "base": "who",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_53db2f4661ab4f739a27884bc4fde549": {
+    "base": "what",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_8d974088f6a3481081889f78c59ab48b": {
+    "base": "which",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_2c0b1240adee4feda8acfb4e37d86db4": {
+    "base": "where",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_88f5e84f927846b09102458fe8bcf6ec": {
+    "base": "when",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_7c6e7701f9df455cb36bf6f77fbba209": {
+    "base": "why",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_60dfc9e3dea1447bb7a576b331fed34f": {
+    "base": "how",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_d2390790af3947a9904d84a7e325173c": {
+    "base": "if",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_5802f8febcbe47b891b9bfa6d50fcbec": {
+    "base": "then",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_5064bc3215ee48d683970326ea31c0d1": {
+    "base": "and",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_1099009179f24a858e7bd1c552948b27": {
+    "base": "or",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_9e1ad11c5677429699477ba919ce624e": {
+    "base": "but",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_06f78b8c320a48b6ab158b58c92952b4": {
+    "base": "because",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_b95145ea7a524b07955def4c46785fd5": {
+    "base": "so",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_e384b9e99a594a3c92a64abb42f8de87": {
+    "base": "though",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_c5e9208af2dc49019dd675564a9acd0f": {
+    "base": "while",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_7879d700c0f04146a0518e98ebeca2e2": {
+    "base": "to",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_8019b1ff21224eb5ad2ddfdad374098f": {
+    "base": "for",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_48a43b8ba6f14a3a8517f530689bac4a": {
+    "base": "with",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_1e1dc4e43c4c40f089622681e5591c91": {
+    "base": "without",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_f5ad782fc1e34b02a4c15a0eb3854261": {
+    "base": "from",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_3d758049f20a433d8c283e22cfaf7632": {
+    "base": "into",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_f7446c39e66c468fbe656a791f664957": {
+    "base": "onto",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_12b44a9a5ebb47ea96e487030bb19185": {
+    "base": "in",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_0d726a9aa5ec4458865625b3aaf52538": {
+    "base": "on",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_04c257b636944e8aa834d12b895eafef": {
+    "base": "at",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_02c8b999177b49819d62365c6bd2fa06": {
+    "base": "by",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_82359b5db7324bc2b990c9ffcdc5a0a9": {
+    "base": "about",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_503bb62df9a64d29b875e9bf814c7c37": {
+    "base": "of",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_63bf401960b6438b97e4bb061eb26a58": {
+    "base": "as",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_59ae4abe67ee4e9a8f5bd6cb6e95962b": {
+    "base": "through",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_387e0a3a03de415593f797840613f062": {
+    "base": "before",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_86f39dad528e41a08ec1cfb80f5bb169": {
+    "base": "after",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_e4bca1243a6d4cf8ad54c43b6a4e681e": {
+    "base": "during",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_6c59991f397b4be892a959f03f51651a": {
+    "base": "is",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_268264516a0c4e2ebe2338a59d481a4f": {
+    "base": "are",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_e1255294353641f48d3ab476fabeb383": {
+    "base": "was",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_a97d95f075834b1fab47446a79f470ee": {
+    "base": "were",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_ea10087dfea94236b4f1d9082e5ded94": {
+    "base": "be",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_d78a90f3aaa84ab795ae532a8b7e4ce6": {
+    "base": "been",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_8af7dcda3c994f50a90fd2e4211e836e": {
+    "base": "being",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_233011cb833b4549a14538896427702d": {
+    "base": "do",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_e387b9f8bd3c47d6852531454bd38345": {
+    "base": "does",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_2917645d3596440f8324374a4fc9fa5e": {
+    "base": "did",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_e6242766dc49493f8c1c3ef9e4c029c9": {
+    "base": "can",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_5a6c63cd3e594be18d6b34b9a483180c": {
+    "base": "could",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_23baf9f97e604e52831630f288bb7f6b": {
+    "base": "will",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_e09bf40adfbb4a2da9394cd59c88c454": {
+    "base": "would",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_c645a2cefc434cc0af14e1fd5c333749": {
+    "base": "should",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_ca1808b0277649a2b0ab1afef2bc4cc6": {
+    "base": "must",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_f30426204ea4477ea8ec6fd02b19c460": {
+    "base": "have",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_72aeea7af2f541b8a2260f4c96213d3a": {
+    "base": "has",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_93fce02f739c4a3eb9e4f81bed60aece": {
+    "base": "had",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_1fd3fd8573fe47d5b1703d0873b3d744": {
+    "base": "not",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_536a222d47a246a3800b24503ba4750f": {
+    "base": "no",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_cd8e4e8619de4502a0d764099f382dec": {
+    "base": "yes",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_f21d2d8b0243406fa18f3e9f21e8cb55": {
+    "base": "please",
+    "forms": {},
+    "pluralization": {}
+  },
   "tok_474552d3ad3f4c23bc1b406e7f74145d": null,
   "tok_e3d04572dd8c4f2fb198bc30fa936c85": null,
   "tok_92d237ecbba7429fa71c30cbc200608d": null,

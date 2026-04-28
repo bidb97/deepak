@@ -1,18 +1,74 @@
 {
-  "num_0": "0",
-  "num_1": "1",
-  "num_2": "2",
-  "num_3": "3",
-  "num_4": "4",
-  "num_5": "5",
-  "num_6": "6",
-  "num_7": "7",
-  "num_8": "8",
-  "num_9": "9",
-  "sym_exclaim": "!",
-  "sym_question": "?",
-  "sym_dash": "-",
-  "tok_21a489d74a3044f49d9f985b625a6878": "—",
+  "num_0": {
+    "base": "0",
+    "forms": {},
+    "pluralization": {}
+  },
+  "num_1": {
+    "base": "1",
+    "forms": {},
+    "pluralization": {}
+  },
+  "num_2": {
+    "base": "2",
+    "forms": {},
+    "pluralization": {}
+  },
+  "num_3": {
+    "base": "3",
+    "forms": {},
+    "pluralization": {}
+  },
+  "num_4": {
+    "base": "4",
+    "forms": {},
+    "pluralization": {}
+  },
+  "num_5": {
+    "base": "5",
+    "forms": {},
+    "pluralization": {}
+  },
+  "num_6": {
+    "base": "6",
+    "forms": {},
+    "pluralization": {}
+  },
+  "num_7": {
+    "base": "7",
+    "forms": {},
+    "pluralization": {}
+  },
+  "num_8": {
+    "base": "8",
+    "forms": {},
+    "pluralization": {}
+  },
+  "num_9": {
+    "base": "9",
+    "forms": {},
+    "pluralization": {}
+  },
+  "sym_exclaim": {
+    "base": "!",
+    "forms": {},
+    "pluralization": {}
+  },
+  "sym_question": {
+    "base": "?",
+    "forms": {},
+    "pluralization": {}
+  },
+  "sym_dash": {
+    "base": "-",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_21a489d74a3044f49d9f985b625a6878": {
+    "base": "—",
+    "forms": {},
+    "pluralization": {}
+  },
   "meta_numbers_symbols_title": "Цифры и символы",
   "meta_numbers_symbols_digits_title": "Цифры",
   "meta_numbers_symbols_symbols_title": "Символы"

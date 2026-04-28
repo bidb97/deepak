@@ -1,17 +1,20 @@
 {
   "apologies": [
     {
-      "id": "thought_you_meant"
+      "id": "thought_you_meant",
+      "active": true
     },
     {
-      "id": "interpreted_as"
+      "id": "interpreted_as",
+      "active": true
     },
     {
-      "id": "please_clarify"
+      "id": "please_clarify",
+      "active": true
     }
   ],
   "meta": {
-    "title": "Оправдания",
+    "title": "meta_09d6645ac8a043bf9fd2aac3b9ce2b9d",
     "has_subcategories": false,
     "scope": "common"
   }

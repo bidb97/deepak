@@ -1,6 +1,18 @@
 {
-  "tok_9cb885a8a8e44031b49a8dfe8796bc4e": "Если",
-  "ready_to_help": "готов",
-  "tok_acc091266d63461db03eaf36ec7cb432": "всегда",
-  "Завершения": "Завершения"
+  "tok_9cb885a8a8e44031b49a8dfe8796bc4e": {
+    "base": "Если",
+    "forms": {},
+    "pluralization": {}
+  },
+  "ready_to_help": {
+    "base": "готов",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_acc091266d63461db03eaf36ec7cb432": {
+    "base": "всегда",
+    "forms": {},
+    "pluralization": {}
+  },
+  "meta_489fcb963ea3472da7c4854ff277a88e": "Завершения"
 }

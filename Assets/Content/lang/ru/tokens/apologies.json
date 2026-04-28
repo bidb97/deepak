@@ -1,6 +1,18 @@
 {
-  "thought_you_meant": "думал",
-  "interpreted_as": "интерпретировал",
-  "please_clarify": "уточните",
-  "Оправдания": "Отмазки"
+  "thought_you_meant": {
+    "base": "думал",
+    "forms": {},
+    "pluralization": {}
+  },
+  "interpreted_as": {
+    "base": "интерпретировал",
+    "forms": {},
+    "pluralization": {}
+  },
+  "please_clarify": {
+    "base": "уточните",
+    "forms": {},
+    "pluralization": {}
+  },
+  "meta_09d6645ac8a043bf9fd2aac3b9ce2b9d": "Отмазки"
 }

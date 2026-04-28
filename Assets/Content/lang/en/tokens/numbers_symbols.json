@@ -9,10 +9,26 @@
   "num_7": null,
   "num_8": null,
   "num_9": null,
-  "sym_exclaim": "!",
-  "sym_question": "?",
-  "sym_dash": "-",
-  "tok_21a489d74a3044f49d9f985b625a6878": "—",
+  "sym_exclaim": {
+    "base": "!",
+    "forms": {},
+    "pluralization": {}
+  },
+  "sym_question": {
+    "base": "?",
+    "forms": {},
+    "pluralization": {}
+  },
+  "sym_dash": {
+    "base": "-",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_21a489d74a3044f49d9f985b625a6878": {
+    "base": "—",
+    "forms": {},
+    "pluralization": {}
+  },
   "meta_numbers_symbols_title": null,
   "meta_numbers_symbols_digits_title": null,
   "meta_numbers_symbols_symbols_title": null

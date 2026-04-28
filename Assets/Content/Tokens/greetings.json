@@ -1,17 +1,20 @@
 {
   "greetings": [
     {
-      "id": "good_day"
+      "id": "good_day",
+      "active": true
     },
     {
-      "id": "hello"
+      "id": "hello",
+      "active": true
     },
     {
-      "id": "greetings"
+      "id": "greetings",
+      "active": true
     }
   ],
   "meta": {
-    "title": "Приветствия",
+    "title": "meta_f7cd61b215f4416784e9e6cfe7d6bb90",
     "has_subcategories": false,
     "scope": "common"
   }
