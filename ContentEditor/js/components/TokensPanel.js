@@ -2,7 +2,8 @@ window.ContentEditorComponents = window.ContentEditorComponents || {};
 
 window.ContentEditorComponents.TokensPanel = {
     components: {
-        IconActionButton: window.ContentEditorComponents.IconActionButton
+        IconActionButton: window.ContentEditorComponents.IconActionButton,
+        TokenFormsFields: window.ContentEditorComponents.TokenFormsFields
     },
     props: [
         'tokenFiles', 'selectedFile', 'saveMessage', 'visualDataEntries', 'fileHasSubcategories',
@@ -10,7 +11,9 @@ window.ContentEditorComponents.TokensPanel = {
     ],
     data() {
         return {
-            activeSubcategoryByCategory: {}
+            activeSubcategoryByCategory: {},
+            formsVisibilityByToken: {},
+            searchQuery: ''
         };
     },
     computed: {
@@ -22,17 +25,85 @@ window.ContentEditorComponents.TokensPanel = {
         }
     },
     methods: {
+        getFormsVisibilityKey(tokenId) {
+            return `${tokenId}::forms`;
+        },
+        isFormsBlockOpen(tokenId) {
+            const key = this.getFormsVisibilityKey(tokenId);
+            return this.formsVisibilityByToken[key] === true;
+        },
+        toggleFormsBlock(tokenId) {
+            const key = this.getFormsVisibilityKey(tokenId);
+            this.formsVisibilityByToken = {
+                ...this.formsVisibilityByToken,
+                [key]: !this.formsVisibilityByToken[key]
+            };
+        },
+        normalizeTranslationEntry(lang, tokenId) {
+            this.translations[lang] = this.translations[lang] || {};
+            const raw = this.translations[lang][tokenId];
+            if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+                return {
+                    base: typeof raw.base === 'string' ? raw.base : '',
+                    forms: (raw.forms && typeof raw.forms === 'object') ? { ...raw.forms } : {},
+                    pluralization: (raw.pluralization && typeof raw.pluralization === 'object') ? { ...raw.pluralization } : {}
+                };
+            }
+            if (typeof raw === 'string') {
+                return { base: raw, forms: {}, pluralization: {} };
+            }
+            return { base: '', forms: {}, pluralization: {} };
+        },
+        getTokenBaseValue(lang, tokenId) {
+            return this.normalizeTranslationEntry(lang, tokenId).base || '';
+        },
+        updateTokenBaseValue(lang, tokenId, value) {
+            this.translations[lang] = this.translations[lang] || {};
+            const entry = this.normalizeTranslationEntry(lang, tokenId);
+            this.translations[lang][tokenId] = { ...entry, base: value };
+        },
+        getFormValue(lang, tokenId, formKey) {
+            return this.normalizeTranslationEntry(lang, tokenId).forms?.[formKey] || '';
+        },
+        updateFormValue(lang, tokenId, formKey, value) {
+            this.translations[lang] = this.translations[lang] || {};
+            const entry = this.normalizeTranslationEntry(lang, tokenId);
+            this.translations[lang][tokenId] = {
+                ...entry,
+                forms: {
+                    ...(entry.forms || {}),
+                    [formKey]: value
+                }
+            };
+        },
+        getPluralizationValue(lang, tokenId, pluralKey) {
+            return this.normalizeTranslationEntry(lang, tokenId).pluralization?.[pluralKey] || '';
+        },
+        updatePluralizationValue(lang, tokenId, pluralKey, value) {
+            this.translations[lang] = this.translations[lang] || {};
+            const entry = this.normalizeTranslationEntry(lang, tokenId);
+            this.translations[lang][tokenId] = {
+                ...entry,
+                pluralization: {
+                    ...(entry.pluralization || {}),
+                    [pluralKey]: value
+                }
+            };
+        },
         getTokenBadgeValue(tokenId) {
-            const ruValue = this.translations?.ru?.[tokenId];
+            const ruValue = this.getTokenBaseValue('ru', tokenId);
             if (typeof ruValue === 'string' && ruValue.trim()) return ruValue;
-            const enValue = this.translations?.en?.[tokenId];
+            const enValue = this.getTokenBaseValue('en', tokenId);
             if (typeof enValue === 'string' && enValue.trim()) return enValue;
             return '—';
         },
         getSubcategoryTitle(subcategoryName) {
             const titleKey = this.subcategoryMeta?.[subcategoryName]?.title;
             if (!titleKey) return subcategoryName;
-            return this.translations?.[this.primaryLanguage]?.[titleKey] || titleKey;
+            const raw = this.translations?.[this.primaryLanguage]?.[titleKey];
+            if (typeof raw === 'string' && raw.trim()) return raw;
+            if (raw && typeof raw === 'object' && typeof raw.base === 'string' && raw.base.trim()) return raw.base;
+            return titleKey;
         },
         isFileActive(file) {
             return file?.active !== false;
@@ -53,6 +124,50 @@ window.ContentEditorComponents.TokensPanel = {
         },
         setActiveSubcategory(categoryName, subcategoryName) {
             this.activeSubcategoryByCategory[categoryName] = subcategoryName;
+        },
+        getTokenFormValue(lang, tokenId, formKey) {
+            return this.getFormValue(lang, tokenId, formKey);
+        },
+        updateTokenFormValue(lang, tokenId, formKey, value) {
+            this.updateFormValue(lang, tokenId, formKey, value);
+        },
+        getTokenPluralizationValue(lang, tokenId, pluralKey) {
+            return this.getPluralizationValue(lang, tokenId, pluralKey);
+        },
+        updateTokenPluralizationValue(lang, tokenId, pluralKey, value) {
+            this.updatePluralizationValue(lang, tokenId, pluralKey, value);
+        },
+        normalizeSearchText(value) {
+            return String(value || '').trim().toLowerCase();
+        },
+        getTokenSearchText(token) {
+            if (!token || typeof token.id !== 'string') return '';
+            const chunks = [token.id];
+            const langs = Object.keys(this.translations || {});
+            for (const lang of langs) {
+                const raw = this.translations?.[lang]?.[token.id];
+                if (typeof raw === 'string') {
+                    chunks.push(raw);
+                    continue;
+                }
+                if (raw && typeof raw === 'object') {
+                    if (typeof raw.base === 'string') chunks.push(raw.base);
+                    if (raw.forms && typeof raw.forms === 'object') {
+                        chunks.push(...Object.values(raw.forms));
+                    }
+                    if (raw.pluralization && typeof raw.pluralization === 'object') {
+                        chunks.push(...Object.values(raw.pluralization));
+                    }
+                }
+            }
+            return this.normalizeSearchText(chunks.join(' '));
+        },
+        getFilteredTokenEntries(tokenList) {
+            const list = Array.isArray(tokenList) ? tokenList : [];
+            const query = this.normalizeSearchText(this.searchQuery);
+            const indexed = list.map((token, index) => ({ token, index }));
+            if (!query) return indexed;
+            return indexed.filter(({ token }) => this.getTokenSearchText(token).includes(query));
         }
     },
     template: `
@@ -151,6 +266,24 @@ window.ContentEditorComponents.TokensPanel = {
                         <div class="flex justify-between items-center mb-3 border-b pb-2">
                             <h3 class="font-bold text-gray-700">{{ selectedFile.displayName }}</h3>
                             <div class="flex items-center gap-3">
+                                <div class="relative w-64">
+                                    <input
+                                        type="text"
+                                        :value="searchQuery"
+                                        @input="searchQuery = $event.target.value"
+                                        placeholder="Поиск в открытой группе"
+                                        class="w-full border border-gray-300 rounded px-2 py-1 pr-8 text-sm focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400"
+                                    >
+                                    <button
+                                        v-if="searchQuery"
+                                        @click="searchQuery = ''"
+                                        type="button"
+                                        title="Очистить поиск"
+                                        class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 transition"
+                                    >
+                                        ×
+                                    </button>
+                                </div>
                                 <button @click="$emit('open-import')" class="px-3 py-1 rounded text-sm border border-gray-300 text-gray-400 hover:bg-gray-100 hover:text-gray-300 transition">Массовый импорт</button>
                                 <span v-if="saveMessage" class="text-green-600 text-sm font-semibold">{{ saveMessage }}</span>
                                 <button @click="$emit('save-file')" class="bg-green-600 hover:bg-green-500 text-white px-4 py-1 rounded text-sm shadow transition">Сохранить</button>
@@ -203,49 +336,65 @@ window.ContentEditorComponents.TokensPanel = {
                                         </button>
                                     </div>
                                     <div class="grid grid-cols-1 xl:grid-cols-2 gap-3 mb-3 w-full">
-                                        <div v-for="(token, index) in subcategories[getActiveSubcategory(categoryName, subcategories)]" :key="index" :class="{ 'token-card-inactive': token.active === false || !isSelectedFileActive() || !isSubcategoryActive(getActiveSubcategory(categoryName, subcategories)) }" class="bg-white border border-gray-200 shadow-sm rounded p-3 relative w-full">
+                                        <div v-for="entry in getFilteredTokenEntries(subcategories[getActiveSubcategory(categoryName, subcategories)])" :key="entry.token.id + '-' + entry.index" :class="{ 'token-card-inactive': entry.token.active === false || !isSelectedFileActive() || !isSubcategoryActive(getActiveSubcategory(categoryName, subcategories)) }" class="bg-white border border-gray-200 shadow-sm rounded p-3 relative w-full">
                                             <div class="absolute top-2 right-2 flex items-center gap-1">
                                                 <icon-action-button
-                                                    :icon="token.active === false ? 'eye-off' : 'eye'"
-                                                    :title="token.active === false ? 'Сделать активным' : 'Скрыть в Unity (inactive)'"
+                                                    :icon="entry.token.active === false ? 'eye-off' : 'eye'"
+                                                    :title="entry.token.active === false ? 'Сделать активным' : 'Скрыть в Unity (inactive)'"
                                                     variant="neutral"
-                                                    @click="$emit('toggle-token-active', categoryName, getActiveSubcategory(categoryName, subcategories), index)"
+                                                    @click="$emit('toggle-token-active', categoryName, getActiveSubcategory(categoryName, subcategories), entry.index)"
                                                 ></icon-action-button>
                                                 <icon-action-button
                                                     icon="plus"
                                                     title="Добавить токен после"
                                                     variant="success"
-                                                    @click="$emit('open-add-token', categoryName, getActiveSubcategory(categoryName, subcategories), index)"
+                                                    @click="$emit('open-add-token', categoryName, getActiveSubcategory(categoryName, subcategories), entry.index)"
                                                 ></icon-action-button>
                                                 <icon-action-button
                                                     icon="up"
                                                     title="Вверх"
                                                     variant="primary"
-                                                    @click="$emit('move-token', categoryName, getActiveSubcategory(categoryName, subcategories), index, 'up')"
-                                                    :disabled="index === 0"
+                                                    @click="$emit('move-token', categoryName, getActiveSubcategory(categoryName, subcategories), entry.index, 'up')"
+                                                    :disabled="entry.index === 0"
                                                 ></icon-action-button>
                                                 <icon-action-button
                                                     icon="down"
                                                     title="Вниз"
                                                     variant="primary"
-                                                    @click="$emit('move-token', categoryName, getActiveSubcategory(categoryName, subcategories), index, 'down')"
-                                                    :disabled="index === subcategories[getActiveSubcategory(categoryName, subcategories)].length - 1"
+                                                    @click="$emit('move-token', categoryName, getActiveSubcategory(categoryName, subcategories), entry.index, 'down')"
+                                                    :disabled="entry.index === subcategories[getActiveSubcategory(categoryName, subcategories)].length - 1"
                                                 ></icon-action-button>
                                                 <icon-action-button
                                                     icon="trash"
                                                     title="Удалить токен"
                                                     variant="danger"
-                                                    @click="$emit('remove-token', categoryName, getActiveSubcategory(categoryName, subcategories), index)"
+                                                    @click="$emit('remove-token', categoryName, getActiveSubcategory(categoryName, subcategories), entry.index)"
                                                 ></icon-action-button>
                                             </div>
                                             <div class="mb-3 pr-6">
-                                                <span class="token-badge font-bold text-sm px-2 py-1 rounded">{{ getTokenBadgeValue(token.id) }}</span>
+                                                <span class="token-badge font-bold text-sm px-2 py-1 rounded">{{ getTokenBadgeValue(entry.token.id) }}</span>
                                             </div>
                                             <div class="space-y-2">
                                                 <div v-for="lang in visibleLanguageList" :key="lang" class="flex items-center gap-2">
                                                     <span class="text-xs font-bold text-gray-400 uppercase w-6 text-right">{{ lang }}</span>
-                                                    <input type="text" v-model="translations[lang][token.id]" :placeholder="'Перевод (' + lang + ')'" class="border border-gray-300 rounded px-2 py-1 text-sm flex-1 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400">
+                                                    <input
+                                                        type="text"
+                                                        :value="getTokenBaseValue(lang, entry.token.id)"
+                                                        @input="updateTokenBaseValue(lang, entry.token.id, $event.target.value)"
+                                                        :placeholder="'Перевод (' + lang + ')'"
+                                                        class="border border-gray-300 rounded px-2 py-1 text-sm flex-1 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400"
+                                                    >
                                                 </div>
+                                                <token-forms-fields
+                                                    :languages="visibleLanguageList"
+                                                    :token-id="entry.token.id"
+                                                    :is-open="isFormsBlockOpen(entry.token.id)"
+                                                    :toggle-handler="toggleFormsBlock"
+                                                    :value-getter="getTokenFormValue"
+                                                    :update-handler="updateTokenFormValue"
+                                                    :pluralization-value-getter="getTokenPluralizationValue"
+                                                    :pluralization-update-handler="updateTokenPluralizationValue"
+                                                ></token-forms-fields>
                                             </div>
                                         </div>
                                         <div
@@ -263,49 +412,65 @@ window.ContentEditorComponents.TokensPanel = {
                                 </div>
                                 <div v-else class="mb-4">
                                     <div class="grid grid-cols-1 xl:grid-cols-2 gap-3 mb-3 w-full">
-                                        <div v-for="(token, index) in subcategories.__flat || []" :key="index" :class="{ 'token-card-inactive': token.active === false || !isSelectedFileActive() }" class="bg-white border border-gray-200 shadow-sm rounded p-3 relative w-full">
+                                        <div v-for="entry in getFilteredTokenEntries(subcategories.__flat || [])" :key="entry.token.id + '-flat-' + entry.index" :class="{ 'token-card-inactive': entry.token.active === false || !isSelectedFileActive() }" class="bg-white border border-gray-200 shadow-sm rounded p-3 relative w-full">
                                             <div class="absolute top-2 right-2 flex items-center gap-1">
                                                 <icon-action-button
-                                                    :icon="token.active === false ? 'eye-off' : 'eye'"
-                                                    :title="token.active === false ? 'Сделать активным' : 'Скрыть в Unity (inactive)'"
+                                                    :icon="entry.token.active === false ? 'eye-off' : 'eye'"
+                                                    :title="entry.token.active === false ? 'Сделать активным' : 'Скрыть в Unity (inactive)'"
                                                     variant="neutral"
-                                                    @click="$emit('toggle-token-active', categoryName, '__flat', index)"
+                                                    @click="$emit('toggle-token-active', categoryName, '__flat', entry.index)"
                                                 ></icon-action-button>
                                                 <icon-action-button
                                                     icon="plus"
                                                     title="Добавить токен после"
                                                     variant="success"
-                                                    @click="$emit('open-add-token', categoryName, '__flat', index)"
+                                                    @click="$emit('open-add-token', categoryName, '__flat', entry.index)"
                                                 ></icon-action-button>
                                                 <icon-action-button
                                                     icon="up"
                                                     title="Вверх"
                                                     variant="primary"
-                                                    @click="$emit('move-token', categoryName, '__flat', index, 'up')"
-                                                    :disabled="index === 0"
+                                                    @click="$emit('move-token', categoryName, '__flat', entry.index, 'up')"
+                                                    :disabled="entry.index === 0"
                                                 ></icon-action-button>
                                                 <icon-action-button
                                                     icon="down"
                                                     title="Вниз"
                                                     variant="primary"
-                                                    @click="$emit('move-token', categoryName, '__flat', index, 'down')"
-                                                    :disabled="index === (subcategories.__flat || []).length - 1"
+                                                    @click="$emit('move-token', categoryName, '__flat', entry.index, 'down')"
+                                                    :disabled="entry.index === (subcategories.__flat || []).length - 1"
                                                 ></icon-action-button>
                                                 <icon-action-button
                                                     icon="trash"
                                                     title="Удалить токен"
                                                     variant="danger"
-                                                    @click="$emit('remove-token', categoryName, '__flat', index)"
+                                                    @click="$emit('remove-token', categoryName, '__flat', entry.index)"
                                                 ></icon-action-button>
                                             </div>
                                             <div class="mb-3 pr-6">
-                                                <span class="token-badge font-bold text-sm px-2 py-1 rounded">{{ getTokenBadgeValue(token.id) }}</span>
+                                                <span class="token-badge font-bold text-sm px-2 py-1 rounded">{{ getTokenBadgeValue(entry.token.id) }}</span>
                                             </div>
                                             <div class="space-y-2">
                                                 <div v-for="lang in visibleLanguageList" :key="lang" class="flex items-center gap-2">
                                                     <span class="text-xs font-bold text-gray-400 uppercase w-6 text-right">{{ lang }}</span>
-                                                    <input type="text" v-model="translations[lang][token.id]" :placeholder="'Перевод (' + lang + ')'" class="border border-gray-300 rounded px-2 py-1 text-sm flex-1 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400">
+                                                    <input
+                                                        type="text"
+                                                        :value="getTokenBaseValue(lang, entry.token.id)"
+                                                        @input="updateTokenBaseValue(lang, entry.token.id, $event.target.value)"
+                                                        :placeholder="'Перевод (' + lang + ')'"
+                                                        class="border border-gray-300 rounded px-2 py-1 text-sm flex-1 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400"
+                                                    >
                                                 </div>
+                                                <token-forms-fields
+                                                    :languages="visibleLanguageList"
+                                                    :token-id="entry.token.id"
+                                                    :is-open="isFormsBlockOpen(entry.token.id)"
+                                                    :toggle-handler="toggleFormsBlock"
+                                                    :value-getter="getTokenFormValue"
+                                                    :update-handler="updateTokenFormValue"
+                                                    :pluralization-value-getter="getTokenPluralizationValue"
+                                                    :pluralization-update-handler="updateTokenPluralizationValue"
+                                                ></token-forms-fields>
                                             </div>
                                         </div>
                                         <div

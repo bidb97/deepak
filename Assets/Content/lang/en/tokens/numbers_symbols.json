@@ -1,7 +1,4 @@
 {
-  "meta_numbers_symbols_title": null,
-  "meta_numbers_symbols_digits_title": null,
-  "meta_numbers_symbols_symbols_title": null,
   "num_0": null,
   "num_1": null,
   "num_2": null,
@@ -12,7 +9,11 @@
   "num_7": null,
   "num_8": null,
   "num_9": null,
-  "sym_exclaim": null,
-  "sym_question": null,
-  "sym_dash": null
+  "sym_exclaim": "!",
+  "sym_question": "?",
+  "sym_dash": "-",
+  "tok_21a489d74a3044f49d9f985b625a6878": "—",
+  "meta_numbers_symbols_title": null,
+  "meta_numbers_symbols_digits_title": null,
+  "meta_numbers_symbols_symbols_title": null
 }

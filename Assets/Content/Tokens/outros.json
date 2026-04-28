@@ -13,6 +13,7 @@
   "meta": {
     "title": "Завершения",
     "has_subcategories": false,
-    "scope": "common"
+    "scope": "common",
+    "active": true
   }
 }

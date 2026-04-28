@@ -1,7 +1,4 @@
 {
-  "meta_numbers_symbols_title": "Цифры и символы",
-  "meta_numbers_symbols_digits_title": "Цифры",
-  "meta_numbers_symbols_symbols_title": "Символы",
   "num_0": "0",
   "num_1": "1",
   "num_2": "2",
@@ -14,5 +11,9 @@
   "num_9": "9",
   "sym_exclaim": "!",
   "sym_question": "?",
-  "sym_dash": "-"
+  "sym_dash": "-",
+  "tok_21a489d74a3044f49d9f985b625a6878": "—",
+  "meta_numbers_symbols_title": "Цифры и символы",
+  "meta_numbers_symbols_digits_title": "Цифры",
+  "meta_numbers_symbols_symbols_title": "Символы"
 }

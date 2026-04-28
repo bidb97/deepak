@@ -1,4 +1,66 @@
 {
+  "numbers_symbols": {
+    "digits": [
+      {
+        "id": "num_0",
+        "active": true
+      },
+      {
+        "id": "num_1",
+        "active": true
+      },
+      {
+        "id": "num_2",
+        "active": true
+      },
+      {
+        "id": "num_3",
+        "active": true
+      },
+      {
+        "id": "num_4",
+        "active": true
+      },
+      {
+        "id": "num_5",
+        "active": true
+      },
+      {
+        "id": "num_6",
+        "active": true
+      },
+      {
+        "id": "num_7",
+        "active": true
+      },
+      {
+        "id": "num_8",
+        "active": true
+      },
+      {
+        "id": "num_9",
+        "active": true
+      }
+    ],
+    "symbols": [
+      {
+        "id": "sym_exclaim",
+        "active": true
+      },
+      {
+        "id": "sym_question",
+        "active": true
+      },
+      {
+        "id": "sym_dash",
+        "active": true
+      },
+      {
+        "id": "tok_21a489d74a3044f49d9f985b625a6878",
+        "active": true
+      }
+    ]
+  },
   "meta": {
     "title": "meta_numbers_symbols_title",
     "has_subcategories": true,
@@ -11,24 +73,5 @@
         "title": "meta_numbers_symbols_symbols_title"
       }
     }
-  },
-  "numbers_symbols": {
-    "digits": [
-      { "id": "num_0" },
-      { "id": "num_1" },
-      { "id": "num_2" },
-      { "id": "num_3" },
-      { "id": "num_4" },
-      { "id": "num_5" },
-      { "id": "num_6" },
-      { "id": "num_7" },
-      { "id": "num_8" },
-      { "id": "num_9" }
-    ],
-    "symbols": [
-      { "id": "sym_exclaim" },
-      { "id": "sym_question" },
-      { "id": "sym_dash" }
-    ]
   }
 }

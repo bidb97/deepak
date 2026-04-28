@@ -48,7 +48,12 @@
         "active": true
       }
     ],
-    "test": []
+    "condiments": [
+      {
+        "id": "tok_6012a3fa21934cbdbe06e98456869aff",
+        "active": true
+      }
+    ]
   },
   "meta": {
     "title": "meta_recipe_title",
@@ -57,13 +62,14 @@
     "subcategories": {
       "soup": {
         "title": "meta_recipe_soup_title",
-        "active": false
+        "active": true
       },
       "baking": {
         "title": "meta_recipe_baking_title"
       },
-      "test": {
-        "title": "meta_recipe_test_title"
+      "condiments": {
+        "title": "meta_8065697362d44e11acca8d3ce75de58c",
+        "active": true
       }
     }
   }

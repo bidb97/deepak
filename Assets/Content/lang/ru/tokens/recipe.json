@@ -1,17 +1,77 @@
 {
-  "borscht": "борщ",
-  "beetroot": "свёкла",
-  "beef": "говядина",
-  "cabbage": "капуста",
-  "broth": "бульон",
-  "boil": "варить",
-  "noodles": "лапша",
-  "flour": "мука",
-  "dough": "тесто",
-  "oven": "духовка",
-  "sugar": "сахар",
+  "borscht": {
+    "base": "борщ",
+    "forms": {},
+    "pluralization": {}
+  },
+  "beetroot": {
+    "base": "свёкла",
+    "forms": {},
+    "pluralization": {}
+  },
+  "beef": {
+    "base": "говядина",
+    "forms": {},
+    "pluralization": {}
+  },
+  "cabbage": {
+    "base": "капуста",
+    "forms": {},
+    "pluralization": {}
+  },
+  "broth": {
+    "base": "бульон",
+    "forms": {},
+    "pluralization": {}
+  },
+  "boil": {
+    "base": "варить",
+    "forms": {},
+    "pluralization": {}
+  },
+  "noodles": {
+    "base": "лапша",
+    "forms": {},
+    "pluralization": {}
+  },
+  "flour": {
+    "base": "мука",
+    "forms": {},
+    "pluralization": {}
+  },
+  "dough": {
+    "base": "тесто",
+    "forms": {},
+    "pluralization": {}
+  },
+  "oven": {
+    "base": "духовка",
+    "forms": {},
+    "pluralization": {}
+  },
+  "sugar": {
+    "base": "сахар",
+    "forms": {},
+    "pluralization": {}
+  },
+  "tok_6012a3fa21934cbdbe06e98456869aff": {
+    "base": "соль",
+    "forms": {
+      "nom": "соль",
+      "gen": "соли",
+      "dat": "соли",
+      "acc": "соль",
+      "ins": "солью",
+      "prep": "соли"
+    },
+    "pluralization": {
+      "one": "соль",
+      "few": "соли",
+      "many": "соли"
+    }
+  },
   "meta_recipe_title": "Рецепты",
   "meta_recipe_soup_title": "Супы",
   "meta_recipe_baking_title": "Выпечка",
-  "meta_recipe_test_title": "Тест"
+  "meta_8065697362d44e11acca8d3ce75de58c": "Приправы"
 }

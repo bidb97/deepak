@@ -83,7 +83,7 @@
             z-index: 1000;
         }
         .token-badge {
-            background: rgba(255, 255, 255, 0.07);
+            background: rgba(245, 158, 11, 0.18) !important;
             color: #d7deea;
             border: 1px solid rgba(255, 255, 255, 0.16);
         }
@@ -309,13 +309,10 @@
         ></create-token-group-modal>
         <import-tokens-modal
             :show="showImportModal"
-            :category-names="categoryNames"
-            :import-category="importCategory"
             :import-subcategory="importSubcategory"
             :file-has-subcategories="fileHasSubcategories"
             :import-subcategory-options="importSubcategoryOptions"
             :mass-import-json="massImportJson"
-            @update:import-category="importCategory = $event"
             @update:import-subcategory="importSubcategory = $event"
             @update:mass-import-json="massImportJson = $event"
             @close="showImportModal = false"
@@ -364,6 +361,7 @@
     <script src="./js/services/tokens-service.js"></script>
     <script src="./js/services/users-service.js"></script>
     <script src="./js/components/common/IconActionButton.js"></script>
+    <script src="./js/components/common/TokenFormsFields.js"></script>
     <script src="./js/components/TokensPanel.js"></script>
     <script src="./js/components/ScenariosPanel.js"></script>
     <script src="./js/components/UsersPanel.js"></script>
@@ -414,7 +412,6 @@
                 const showEditTitleModal = ref(false);
                 const showLanguagesModal = ref(false);
                 const massImportJson = ref('');
-                const importCategory = ref('');
                 const importSubcategory = ref('');
                 const newGroupFileName = ref('');
                 const newGroupTitle = ref('');
@@ -432,6 +429,7 @@
                 const visibleLanguages = ref([]);
 
                 const categoryNames = computed(() => Object.keys(visualData.value).filter((k) => k !== 'meta'));
+                const importTargetCategory = computed(() => categoryNames.value[0] || '');
 
                 const visualDataEntries = computed(() =>
                     Object.fromEntries(
@@ -440,8 +438,15 @@
                 );
 
                 const importSubcategoryOptions = computed(() => {
-                    if (!importCategory.value || !visualData.value[importCategory.value]) return [];
-                    return Object.keys(visualData.value[importCategory.value]);
+                    if (!importTargetCategory.value || !visualData.value[importTargetCategory.value]) return [];
+                    return Object.keys(visualData.value[importTargetCategory.value]).map((sub) => {
+                        const titleKey = subcategoryMeta.value?.[sub]?.title;
+                        const translated = titleKey ? translations.value?.[primaryLanguage.value]?.[titleKey] : null;
+                        const label = (typeof translated === 'string' && translated.trim())
+                            ? translated.trim()
+                            : sub;
+                        return { value: sub, label };
+                    });
                 });
 
                 const visibleLanguageList = computed(() => {
@@ -535,6 +540,70 @@
                     await writable.close();
                 };
 
+                const normalizeTranslationEntry = (lang, raw) => {
+                    if (typeof raw === 'string') {
+                        const base = raw.trim();
+                        return base ? { base, forms: {}, pluralization: {} } : null;
+                    }
+                    if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+                        const base = typeof raw.base === 'string' ? raw.base.trim() : '';
+                        const formsRaw = raw.forms && typeof raw.forms === 'object' ? raw.forms : {};
+                        const pluralizationRaw = raw.pluralization && typeof raw.pluralization === 'object' ? raw.pluralization : {};
+                        const forms = {};
+                        const pluralization = {};
+                        for (const [key, value] of Object.entries(formsRaw)) {
+                            if (typeof value === 'string' && value.trim()) {
+                                forms[key] = value.trim();
+                            }
+                        }
+                        const allowedPluralizationKeys = lang === 'ru'
+                            ? ['one', 'few', 'many']
+                            : (lang === 'en' ? ['one', 'many'] : []);
+                        for (const [key, value] of Object.entries(pluralizationRaw)) {
+                            if (
+                                allowedPluralizationKeys.includes(key) &&
+                                typeof value === 'string' &&
+                                value.trim()
+                            ) {
+                                pluralization[key] = value.trim();
+                            }
+                        }
+                        if (!base && !Object.keys(forms).length && !Object.keys(pluralization).length) return null;
+                        return { base, forms, pluralization };
+                    }
+                    return null;
+                };
+
+                const getTranslationText = (raw) => {
+                    if (typeof raw === 'string') return raw;
+                    if (raw && typeof raw === 'object' && typeof raw.base === 'string') return raw.base;
+                    return null;
+                };
+
+                const toStoredTranslationEntry = (lang, key, raw) => {
+                    if (typeof key === 'string' && key.startsWith('meta_')) {
+                        return getTranslationText(raw);
+                    }
+                    return normalizeTranslationEntry(lang, raw);
+                };
+
+                const hasImportValue = (value) => {
+                    if (typeof value === 'string') return value.trim() !== '';
+                    if (value && typeof value === 'object' && !Array.isArray(value)) {
+                        if (typeof value.base === 'string' && value.base.trim() !== '') return true;
+                        const forms = value.forms && typeof value.forms === 'object' ? value.forms : {};
+                        return Object.values(forms).some((v) => typeof v === 'string' && v.trim() !== '');
+                    }
+                    return false;
+                };
+
+                const getComparableBase = (lang, raw) => {
+                    const normalized = normalizeTranslationEntry(lang, raw);
+                    const base = normalized?.base;
+                    if (typeof base !== 'string') return '';
+                    return base.trim().toLowerCase();
+                };
+
                 const upsertMetaTranslation = async (contentHandle, fileName, key, ruValue) => {
                     for (const lang of languages.value) {
                         const { fileHandle, map } = await readLanguageMapForFile(contentHandle, lang, fileName);
@@ -618,11 +687,10 @@
                         const text = await file.text();
                         const parsed = JSON.parse(text);
                         visualData.value = normalizeVisualDataForEditor(parsed);
-                        const categories = categoryNames.value;
-                        importCategory.value = categories[0] || '';
-                        importSubcategory.value = categories[0] ? Object.keys(visualData.value[categories[0]])[0] || '' : '';
+                        const targetCategory = importTargetCategory.value;
+                        importSubcategory.value = targetCategory ? Object.keys(visualData.value[targetCategory])?.[0] || '' : '';
                         if (!fileHasSubcategories.value) {
-                            importSubcategory.value = categories[0] ? Object.keys(visualData.value[categories[0]])[0] || '' : '';
+                            importSubcategory.value = targetCategory ? Object.keys(visualData.value[targetCategory])?.[0] || '' : '';
                         }
                         await loadTranslationsForSelectedFile();
                     } catch (e) {
@@ -723,17 +791,34 @@
                             return;
                         }
 
-                        if (!importCategory.value || !importSubcategory.value) {
-                            alert(fileHasSubcategories.value ? 'Выберите категорию и подкатегорию.' : 'Выберите категорию.');
+                        const targetCategory = importTargetCategory.value;
+                        if (!targetCategory) {
+                            alert('В выбранном файле нет категории для импорта.');
+                            return;
+                        }
+
+                        if (!importSubcategory.value) {
+                            alert('Выберите подкатегорию.');
                             return;
                         }
 
                         if (!fileHasSubcategories.value) {
-                            importSubcategory.value = Object.keys(visualData.value[importCategory.value] || {})[0] || '';
+                            importSubcategory.value = Object.keys(visualData.value[targetCategory] || {})[0] || '';
                         }
 
-                        if (!visualData.value[importCategory.value][importSubcategory.value]) {
-                            visualData.value[importCategory.value][importSubcategory.value] = [];
+                        if (!visualData.value[targetCategory][importSubcategory.value]) {
+                            visualData.value[targetCategory][importSubcategory.value] = [];
+                        }
+
+                        const targetTokenArray = visualData.value[targetCategory][importSubcategory.value];
+                        const existingByBase = new Map();
+                        for (const token of targetTokenArray) {
+                            if (!token || typeof token.id !== 'string') continue;
+                            const ruBase = getComparableBase('ru', translations.value?.ru?.[token.id]);
+                            const enBase = getComparableBase('en', translations.value?.en?.[token.id]);
+                            const compareKey = ruBase || enBase;
+                            if (!compareKey) continue;
+                            existingByBase.set(compareKey, token.id);
                         }
 
                         payloadLangs.forEach(ensureLanguageExists);
@@ -743,22 +828,33 @@
                         const baseLength = payload[baseLang].length;
                         const usedIds = await collectUsedTokenIds();
                         for (let i = 0; i < baseLength; i++) {
-                            const hasAnyValue = payloadLangs.some((lang) => {
-                                const value = payload[lang]?.[i];
-                                return typeof value === 'string' && value.trim() !== '';
-                            });
+                            const hasAnyValue = payloadLangs.some((lang) => hasImportValue(payload[lang]?.[i]));
                             if (!hasAnyValue) continue;
 
-                            const id = tokensService.generateUniqueTokenId(usedIds);
-                            visualData.value[importCategory.value][importSubcategory.value].push({
-                                id,
-                                active: true
-                            });
+                            const incomingRuBase = getComparableBase('ru', payload?.ru?.[i]);
+                            const incomingEnBase = getComparableBase('en', payload?.en?.[i]);
+                            const incomingCompareKey = incomingRuBase || incomingEnBase;
 
-                            for (const lang of languages.value) {
+                            let targetId = incomingCompareKey ? existingByBase.get(incomingCompareKey) : null;
+                            if (!targetId) {
+                                targetId = tokensService.generateUniqueTokenId(usedIds);
+                                targetTokenArray.push({
+                                    id: targetId,
+                                    active: true
+                                });
+                            }
+
+                            for (const lang of payloadLangs) {
                                 const arr = Array.isArray(payload[lang]) ? payload[lang] : [];
                                 const value = arr[i];
-                                translations.value[lang][id] = (typeof value === 'string' && value.trim() !== '') ? value.trim() : null;
+                                translations.value[lang][targetId] = normalizeTranslationEntry(lang, value);
+                            }
+
+                            const updatedRuBase = getComparableBase('ru', translations.value?.ru?.[targetId]);
+                            const updatedEnBase = getComparableBase('en', translations.value?.en?.[targetId]);
+                            const updatedCompareKey = updatedRuBase || updatedEnBase;
+                            if (updatedCompareKey) {
+                                existingByBase.set(updatedCompareKey, targetId);
                             }
                         }
 
@@ -780,7 +876,7 @@
                         // Синхронизируем отображаемое имя файла из перевода meta.title (ключ -> текст)
                         if (payloadToSave?.meta?.title) {
                             const titleKey = payloadToSave.meta.title;
-                            const nextTitle = translations.value?.ru?.[titleKey] || titleKey;
+                            const nextTitle = getTranslationText(translations.value?.ru?.[titleKey]) || titleKey;
                             selectedFile.value.displayName = nextTitle;
                             tokenFiles.value = tokenFiles.value.map((f) =>
                                 f.name === selectedFile.value.name ? { ...f, displayName: nextTitle } : f
@@ -820,7 +916,7 @@
                             for (const lang of languages.value) {
                                 // Добавляем ключи из текущего файла, если их нет
                                 scopedTranslationKeys.forEach(id => {
-                                    if (translations.value[lang][id] === undefined || translations.value[lang][id] === '') {
+                                    if (translations.value[lang][id] === undefined) {
                                         translations.value[lang][id] = null;
                                     }
                                 });
@@ -830,7 +926,7 @@
                                 const tokensFile = await tokensDir.getFileHandle(selectedFile.value.name, {create: true});
                                 const fileScopedTranslations = {};
                                 scopedTranslationKeys.forEach(id => {
-                                    fileScopedTranslations[id] = translations.value[lang][id];
+                                    fileScopedTranslations[id] = toStoredTranslationEntry(lang, id, translations.value[lang][id]);
                                 });
                                 const locWritable = await tokensFile.createWritable();
                                 await locWritable.write(JSON.stringify(fileScopedTranslations, null, 2));
@@ -1005,16 +1101,43 @@
                     addTokenContext.value = { category, subcategory, index };
                     const draft = {};
                     visibleLanguageList.value.forEach((lang) => {
-                        draft[lang] = '';
+                        draft[lang] = { base: '', forms: {}, pluralization: {} };
                     });
                     newTokenModalDraft.value = draft;
                     showAddTokenModal.value = true;
                 };
 
-                const updateTokenDraftValue = ({ lang, value }) => {
+                const updateTokenDraftValue = ({ lang, value, field, formKey, pluralKey }) => {
+                    const prev = newTokenModalDraft.value?.[lang];
+                    const prevObj = (prev && typeof prev === 'object' && !Array.isArray(prev))
+                        ? prev
+                        : { base: typeof prev === 'string' ? prev : '', forms: {}, pluralization: {} };
+                    let nextEntry = prevObj;
+                    if (field === 'form' && formKey) {
+                        nextEntry = {
+                            ...prevObj,
+                            forms: {
+                                ...(prevObj.forms || {}),
+                                [formKey]: value
+                            }
+                        };
+                    } else if (field === 'pluralization' && pluralKey) {
+                        nextEntry = {
+                            ...prevObj,
+                            pluralization: {
+                                ...(prevObj.pluralization || {}),
+                                [pluralKey]: value
+                            }
+                        };
+                    } else {
+                        nextEntry = {
+                            ...prevObj,
+                            base: value
+                        };
+                    }
                     newTokenModalDraft.value = {
                         ...newTokenModalDraft.value,
-                        [lang]: value
+                        [lang]: nextEntry
                     };
                 };
 
@@ -1026,7 +1149,7 @@
                     if (!Array.isArray(targetArray)) return;
 
                     const hasAnyValue = Object.values(newTokenModalDraft.value || {}).some(
-                        (v) => typeof v === 'string' && v.trim()
+                        hasImportValue
                     );
                     if (!hasAnyValue) {
                         alert('Заполни хотя бы одно поле перевода.');
@@ -1040,8 +1163,7 @@
                     for (const lang of languages.value) {
                         ensureLanguageExists(lang);
                         const raw = newTokenModalDraft.value?.[lang];
-                        const value = (typeof raw === 'string' && raw.trim()) ? raw.trim() : null;
-                        translations.value[lang][id] = value;
+                        translations.value[lang][id] = normalizeTranslationEntry(lang, raw);
                     }
 
                     addTokenContext.value = null;
@@ -1471,7 +1593,6 @@
                     showCreateSubcategoryModal,
                     showEditTitleModal,
                     massImportJson,
-                    importCategory,
                     importSubcategory,
                     newGroupFileName,
                     newGroupTitle,
