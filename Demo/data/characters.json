@@ -1,0 +1,34 @@
+{
+  "characters": [
+    {
+      "id": "anzhela",
+      "name": "Анжела",
+      "archetype": "default",
+      "notes": ""
+    },
+    {
+      "id": "igor",
+      "name": "Игорь",
+      "archetype": "default",
+      "notes": ""
+    },
+    {
+      "id": "temnyy_roman",
+      "name": "Темный_Роман",
+      "archetype": "default",
+      "notes": ""
+    },
+    {
+      "id": "karen",
+      "name": "Karen",
+      "archetype": "karen",
+      "notes": ""
+    },
+    {
+      "id": "petya_7_let",
+      "name": "Петя, 7 лет",
+      "archetype": "child",
+      "notes": ""
+    }
+  ]
+}

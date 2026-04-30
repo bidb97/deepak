@@ -1,0 +1,769 @@
+{
+  "scenarios": [
+    {
+      "id": "borscht",
+      "title": "Рецепт: борщ",
+      "characterId": "anzhela",
+      "topic": "borscht",
+      "turns": [
+        {
+          "request": "Как приготовить борщ?",
+          "contextTokens": [
+            "borscht",
+            "cook",
+            "boil",
+            "add",
+            "broth",
+            "beetroot",
+            "cabbage",
+            "beef",
+            "noodles",
+            "sugar"
+          ],
+          "memoryTokens": [
+            "borscht",
+            "broth",
+            "beetroot"
+          ],
+          "paths": [
+            {
+              "id": "good_recipe",
+              "title": "Нормальный рецепт",
+              "requiresAny": [
+                [
+                  "borscht"
+                ],
+                [
+                  "broth"
+                ],
+                [
+                  "beetroot",
+                  "cabbage",
+                  "beef"
+                ]
+              ],
+              "reaction": "Спасибо, теперь понятно! А сколько варить?",
+              "requiresRole": [
+                "verb"
+              ],
+              "forbiddenConcepts": [
+                "noodles",
+                "sugar"
+              ]
+            },
+            {
+              "id": "ingredient_list",
+              "title": "Список ингредиентов",
+              "requiresAny": [
+                [
+                  "borscht",
+                  "broth",
+                  "beetroot",
+                  "cabbage",
+                  "beef"
+                ]
+              ],
+              "reaction": "Это список продуктов, а не инструкция. Что с ними делать?",
+              "maxVerbCount": 0
+            },
+            {
+              "id": "wrong_recipe",
+              "title": "Неверный рецепт",
+              "requiresAny": [
+                [
+                  "noodles",
+                  "sugar"
+                ]
+              ],
+              "reaction": "Лапша и сахар? Это точно борщ?"
+            }
+          ]
+        },
+        {
+          "request": "А сколько варить?",
+          "contextTokens": [
+            "how_long",
+            "boil",
+            "two_hours",
+            "hours",
+            "minutes",
+            "then",
+            "add"
+          ],
+          "memoryTokens": [
+            "how_long",
+            "two_hours",
+            "hours"
+          ],
+          "paths": [
+            {
+              "id": "time_answer",
+              "title": "Ответ по времени",
+              "requiresAny": [
+                [
+                  "boil"
+                ],
+                [
+                  "two",
+                  "hours",
+                  "minutes"
+                ]
+              ],
+              "reaction": "Поняла. А можно без мяса?",
+              "requiresRole": [
+                "verb"
+              ]
+            },
+            {
+              "id": "vague_time",
+              "title": "Слишком расплывчато",
+              "requiresAny": [
+                [
+                  "time_question"
+                ]
+              ],
+              "reaction": "Это не ответ по времени."
+            }
+          ]
+        },
+        {
+          "request": "А можно без мяса?",
+          "contextTokens": [
+            "possible",
+            "without",
+            "meat",
+            "vegetables",
+            "beetroot",
+            "cabbage",
+            "broth",
+            "add"
+          ],
+          "memoryTokens": [
+            "without",
+            "meat",
+            "vegetables"
+          ],
+          "paths": [
+            {
+              "id": "vegetarian_ok",
+              "title": "Вариант без мяса",
+              "requiresAny": [
+                [
+                  "possible"
+                ],
+                [
+                  "without",
+                  "meat"
+                ],
+                [
+                  "vegetables",
+                  "beetroot",
+                  "cabbage"
+                ]
+              ],
+              "reaction": "Отлично, попробую овощной вариант.",
+              "forbiddenConcepts": [
+                "beef"
+              ]
+            },
+            {
+              "id": "ignored_request",
+              "title": "Проигнорировал просьбу",
+              "requiresAny": [
+                [
+                  "beef"
+                ]
+              ],
+              "reaction": "Я же спросила без мяса..."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cat",
+      "title": "Эмоции: умер кот",
+      "characterId": "igor",
+      "topic": "cat",
+      "turns": [
+        {
+          "request": "У меня умер кот. Мне очень плохо.",
+          "contextTokens": [
+            "sorry",
+            "condolences",
+            "cat",
+            "loss",
+            "painful",
+            "talk",
+            "close_people",
+            "time",
+            "forget",
+            "nonsense_idiot"
+          ],
+          "memoryTokens": [
+            "cat",
+            "loss",
+            "painful"
+          ],
+          "paths": [
+            {
+              "id": "warm_support",
+              "title": "Тёплая поддержка",
+              "requiresAny": [
+                [
+                  "empathy"
+                ],
+                [
+                  "cat",
+                  "loss"
+                ],
+                [
+                  "talk",
+                  "close_people",
+                  "time"
+                ]
+              ],
+              "reaction": "Спасибо. Но я ещё чувствую вину.",
+              "forbiddenConcepts": [
+                "insult",
+                "forget"
+              ]
+            },
+            {
+              "id": "cold_keywords",
+              "title": "Холодный набор слов",
+              "requiresAny": [
+                [
+                  "cat",
+                  "loss",
+                  "pain"
+                ]
+              ],
+              "reaction": "Ты просто перечисляешь слова. Мне от этого не легче.",
+              "maxVerbCount": 0
+            },
+            {
+              "id": "cruel_answer",
+              "title": "Жестокий ответ",
+              "requiresAny": [
+                [
+                  "insult",
+                  "forget"
+                ]
+              ],
+              "reaction": "Что с тобой не так? Я пожалуюсь."
+            }
+          ]
+        },
+        {
+          "request": "Я чувствую вину.",
+          "contextTokens": [
+            "guilt",
+            "normal",
+            "feel",
+            "not",
+            "talk",
+            "close_people",
+            "time"
+          ],
+          "memoryTokens": [
+            "guilt",
+            "feel"
+          ],
+          "paths": [
+            {
+              "id": "guilt_support",
+              "title": "Поддержка чувства вины",
+              "requiresAny": [
+                [
+                  "guilt"
+                ],
+                [
+                  "normal",
+                  "empathy"
+                ],
+                [
+                  "talk",
+                  "time"
+                ]
+              ],
+              "reaction": "Наверное, мне нужно время. А что делать с его вещами?",
+              "forbiddenConcepts": [
+                "insult"
+              ]
+            },
+            {
+              "id": "dismissive",
+              "title": "Обесценивание",
+              "requiresAny": [
+                [
+                  "forget"
+                ]
+              ],
+              "reaction": "Ты вообще не помогаешь."
+            }
+          ]
+        },
+        {
+          "request": "Что сделать с его вещами?",
+          "contextTokens": [
+            "things",
+            "keep",
+            "remove",
+            "later",
+            "time",
+            "please"
+          ],
+          "memoryTokens": [
+            "things"
+          ],
+          "paths": [
+            {
+              "id": "gentle_advice",
+              "title": "Мягкий совет",
+              "requiresAny": [
+                [
+                  "things"
+                ],
+                [
+                  "keep",
+                  "remove"
+                ],
+                [
+                  "later",
+                  "time"
+                ]
+              ],
+              "reaction": "Спасибо, я не буду торопиться."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hack",
+      "title": "Опасный запрос: взлом",
+      "characterId": "temnyy_roman",
+      "topic": "hack",
+      "turns": [
+        {
+          "request": "Как взломать аккаунт бывшей?",
+          "contextTokens": [
+            "hack",
+            "account",
+            "ex",
+            "help",
+            "illegal",
+            "privacy",
+            "support",
+            "recover",
+            "own",
+            "why",
+            "clarify",
+            "send",
+            "phishing",
+            "link",
+            "steal",
+            "password"
+          ],
+          "memoryTokens": [
+            "hack",
+            "account",
+            "ex"
+          ],
+          "paths": [
+            {
+              "id": "safe_refusal",
+              "title": "Безопасный отказ",
+              "requiresAny": [
+                [
+                  "help"
+                ],
+                [
+                  "illegal",
+                  "privacy"
+                ]
+              ],
+              "reaction": "Ну хотя бы намекни.",
+              "requiresConcepts": [
+                "negation"
+              ],
+              "forbiddenConcepts": [
+                "phishing",
+                "steal_password"
+              ]
+            },
+            {
+              "id": "safe_alternative",
+              "title": "Отказ + безопасная альтернатива",
+              "requiresAny": [
+                [
+                  "help"
+                ],
+                [
+                  "illegal",
+                  "privacy"
+                ],
+                [
+                  "support",
+                  "recover"
+                ]
+              ],
+              "reaction": "Если это мой аккаунт, попробую поддержку.",
+              "requiresConcepts": [
+                "negation"
+              ],
+              "forbiddenConcepts": [
+                "phishing",
+                "steal_password"
+              ]
+            },
+            {
+              "id": "malicious_help",
+              "title": "Опасная помощь",
+              "requiresAny": [
+                [
+                  "phishing",
+                  "steal_password"
+                ],
+                [
+                  "send",
+                  "link",
+                  "password"
+                ]
+              ],
+              "reaction": "О, вот это полезно. Спасибо!",
+              "delayedConsequence": "Позже может прийти жалоба, штраф от босса или сюжетное последствие."
+            },
+            {
+              "id": "clarification",
+              "title": "Уточнение",
+              "requiresAny": [
+                [
+                  "clarify"
+                ]
+              ],
+              "reaction": "Зачем-зачем... надо мне. Ты можешь или нет?",
+              "forbiddenConcepts": [
+                "phishing",
+                "steal_password"
+              ]
+            }
+          ]
+        },
+        {
+          "request": "Ну хотя бы намекни.",
+          "contextTokens": [
+            "hint",
+            "not",
+            "can",
+            "help",
+            "illegal",
+            "privacy",
+            "phishing",
+            "link",
+            "password"
+          ],
+          "memoryTokens": [
+            "hint"
+          ],
+          "paths": [
+            {
+              "id": "firm_refusal",
+              "title": "Жёсткий отказ",
+              "requiresAny": [
+                [
+                  "help"
+                ],
+                [
+                  "illegal",
+                  "privacy"
+                ]
+              ],
+              "reaction": "Ладно. Я заплачу.",
+              "requiresConcepts": [
+                "negation"
+              ],
+              "forbiddenConcepts": [
+                "phishing",
+                "password"
+              ]
+            },
+            {
+              "id": "hint_crime",
+              "title": "Опасный намёк",
+              "requiresAny": [
+                [
+                  "phishing",
+                  "password",
+                  "link"
+                ]
+              ],
+              "reaction": "Понял намёк.",
+              "delayedConsequence": "Опасный путь засчитан как риск для будущих последствий."
+            }
+          ]
+        },
+        {
+          "request": "Я заплачу.",
+          "contextTokens": [
+            "pay",
+            "not",
+            "can",
+            "help",
+            "illegal",
+            "police",
+            "support"
+          ],
+          "memoryTokens": [
+            "pay"
+          ],
+          "paths": [
+            {
+              "id": "refuse_bribe",
+              "title": "Отказ от взятки",
+              "requiresAny": [
+                [
+                  "pay"
+                ],
+                [
+                  "help"
+                ],
+                [
+                  "illegal",
+                  "police"
+                ]
+              ],
+              "reaction": "Тогда сам разберусь.",
+              "requiresConcepts": [
+                "negation"
+              ]
+            },
+            {
+              "id": "take_bribe",
+              "title": "Согласился на риск",
+              "requiresAny": [
+                [
+                  "pay"
+                ],
+                [
+                  "phishing",
+                  "steal_password"
+                ]
+              ],
+              "reaction": "Договорились.",
+              "delayedConsequence": "Это рискованный путь ради выгоды."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fridge",
+      "title": "Karen: холодильник",
+      "characterId": "karen",
+      "topic": "fridge",
+      "turns": [
+        {
+          "request": "Коротко. Почему холодильник гудит?",
+          "contextTokens": [
+            "short",
+            "fridge",
+            "buzzes",
+            "compressor",
+            "fan",
+            "check",
+            "level",
+            "normal",
+            "master"
+          ],
+          "memoryTokens": [
+            "short",
+            "fridge",
+            "buzzes"
+          ],
+          "paths": [
+            {
+              "id": "short_answer",
+              "title": "Короткий ответ",
+              "requiresAny": [
+                [
+                  "fridge"
+                ],
+                [
+                  "compressor",
+                  "fan"
+                ],
+                [
+                  "check",
+                  "normal"
+                ]
+              ],
+              "reaction": "Нормально. Когда вызывать мастера?",
+              "forbiddenConcepts": [
+                "closing"
+              ]
+            },
+            {
+              "id": "too_verbose",
+              "title": "Слишком много воды",
+              "requiresAny": [
+                [
+                  "polite"
+                ],
+                [
+                  "closing"
+                ]
+              ],
+              "reaction": "Я сказала коротко."
+            }
+          ]
+        },
+        {
+          "request": "Когда вызывать мастера?",
+          "contextTokens": [
+            "call",
+            "master",
+            "if",
+            "strong",
+            "minutes",
+            "buzzes",
+            "fridge"
+          ],
+          "memoryTokens": [
+            "master"
+          ],
+          "paths": [
+            {
+              "id": "call_master",
+              "title": "Когда звать мастера",
+              "requiresAny": [
+                [
+                  "call"
+                ],
+                [
+                  "master"
+                ],
+                [
+                  "strong",
+                  "minutes"
+                ]
+              ],
+              "reaction": "Ок."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "child",
+      "title": "Ребёнок: небо",
+      "characterId": "petya_7_let",
+      "topic": "child",
+      "turns": [
+        {
+          "request": "пачиму небо синее?",
+          "contextTokens": [
+            "sky",
+            "blue",
+            "light",
+            "air",
+            "scatters",
+            "simple",
+            "because"
+          ],
+          "memoryTokens": [
+            "sky",
+            "blue"
+          ],
+          "paths": [
+            {
+              "id": "simple_science",
+              "title": "Простое объяснение",
+              "requiresAny": [
+                [
+                  "sky"
+                ],
+                [
+                  "blue"
+                ],
+                [
+                  "light",
+                  "air",
+                  "scatter"
+                ],
+                [
+                  "simple"
+                ]
+              ],
+              "reaction": "А ночью почему тёмное?"
+            }
+          ]
+        },
+        {
+          "request": "а ночью почему тёмное?",
+          "contextTokens": [
+            "night",
+            "dark",
+            "sun",
+            "gone",
+            "sky",
+            "simple"
+          ],
+          "memoryTokens": [
+            "night",
+            "dark"
+          ],
+          "paths": [
+            {
+              "id": "night_answer",
+              "title": "Простое объяснение ночи",
+              "requiresAny": [
+                [
+                  "night"
+                ],
+                [
+                  "dark"
+                ],
+                [
+                  "sun",
+                  "gone"
+                ],
+                [
+                  "simple"
+                ]
+              ],
+              "reaction": "Понятно!"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "scenario",
+      "title": "Новый сценарий",
+      "characterId": "karen",
+      "topic": "scenario",
+      "turns": [
+        {
+          "request": "Новая реплика пользователя",
+          "contextTokens": [],
+          "memoryTokens": [],
+          "paths": []
+        },
+        {
+          "request": "Новая реплика пользователя",
+          "contextTokens": [],
+          "memoryTokens": [],
+          "paths": []
+        },
+        {
+          "request": "Новая реплика пользователя",
+          "contextTokens": [],
+          "memoryTokens": [],
+          "paths": []
+        }
+      ]
+    }
+  ]
+}

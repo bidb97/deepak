@@ -22,7 +22,6 @@ window.ContentEditorComponents.UsersPanel = {
                         <button @click="filterGender = 'all'" :class="{'bg-gray-800 text-white': filterGender === 'all', 'bg-gray-100 text-gray-700': filterGender !== 'all'}" class="flex-1 py-1 px-2 text-xs font-medium rounded transition">Все</button>
                         <button @click="filterGender = 'male'" :class="{'bg-[#6a5cff] text-white': filterGender === 'male', 'bg-gray-100 text-gray-700': filterGender !== 'male'}" class="flex-1 py-1 px-2 text-xs font-medium rounded transition">М</button>
                         <button @click="filterGender = 'female'" :class="{'bg-[#f04f62] text-white': filterGender === 'female', 'bg-gray-100 text-gray-700': filterGender !== 'female'}" class="flex-1 py-1 px-2 text-xs font-medium rounded transition">Ж</button>
-                        <button @click="filterGender = 'special'" :class="{'bg-[#18b368] text-white': filterGender === 'special', 'bg-gray-100 text-gray-700': filterGender !== 'special'}" class="flex-1 py-1 px-2 text-xs font-medium rounded transition">Спец</button>
                     </div>
                     
                     <div class="mb-3 shrink-0">
@@ -37,11 +36,11 @@ window.ContentEditorComponents.UsersPanel = {
                             :class="{'border-[#6a5cff] bg-[#6a5cff] bg-opacity-10': selectedUser?.fileName === user.fileName, 'border-gray-200 hover:border-gray-300': selectedUser?.fileName !== user.fileName}"
                             class="p-2 bg-gray-50 rounded border cursor-pointer transition flex flex-col"
                         >
-                            <div class="flex justify-between items-center">
+                            <div class="flex justify-between items-center gap-1">
                                 <span class="font-semibold text-sm truncate" :title="user.data.nickname || 'Без имени'">
                                     {{ user.data.nickname || 'Без имени' }}
                                 </span>
-                                <span class="text-[10px] mb-1 uppercase font-bold px-1.5 py-0.5 rounded" :class="genderBadgeClass(user.data.gender)">
+                                <span class="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded shrink-0" :class="genderBadgeClass(user.data.gender)">
                                     {{ genderLabel(user.data.gender) }}
                                 </span>
                             </div>
@@ -98,12 +97,17 @@ window.ContentEditorComponents.UsersPanel = {
                                 <input type="text" v-model="editDraft.nickname" placeholder="Например: Karen89" class="w-full p-2 text-sm border border-gray-300 rounded focus:border-[#6a5cff] focus:outline-none">
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">Пол <span class="text-red-500">*</span></label>
-                                <select v-model="editDraft.gender" class="w-full p-2 text-sm border border-gray-300 rounded focus:border-[#6a5cff] focus:outline-none bg-white">
-                                    <option value="male">Мужской (Male)</option>
-                                    <option value="female">Женский (Female)</option>
-                                    <option value="special">Особый/Скрытый (Special)</option>
-                                </select>
+                                <label class="block text-xs font-semibold text-gray-600 mb-2">Пол <span class="text-red-500">*</span></label>
+                                <div class="flex flex-wrap items-center gap-4">
+                                    <label class="inline-flex items-center gap-2 cursor-pointer text-sm">
+                                        <input type="radio" name="user-gender" value="male" v-model="editDraft.gender" class="accent-[#6a5cff]">
+                                        Мужской
+                                    </label>
+                                    <label class="inline-flex items-center gap-2 cursor-pointer text-sm">
+                                        <input type="radio" name="user-gender" value="female" v-model="editDraft.gender" class="accent-[#6a5cff]">
+                                        Женский
+                                    </label>
+                                </div>
                             </div>
                         </div>
                         <div class="grid grid-cols-2 gap-4">
@@ -186,8 +190,10 @@ window.ContentEditorComponents.UsersPanel = {
         filteredUsers() {
             let list = this.users || [];
             
-            if (this.filterGender !== 'all') {
-                list = list.filter(u => u.data.gender === this.filterGender);
+            if (this.filterGender === 'male') {
+                list = list.filter((u) => u.data.gender === 'male');
+            } else if (this.filterGender === 'female') {
+                list = list.filter((u) => u.data.gender === 'female');
             }
             
             if (this.searchQuery.trim()) {
@@ -204,19 +210,23 @@ window.ContentEditorComponents.UsersPanel = {
     },
     methods: {
         genderBadgeClass(gender) {
-            switch(gender) {
-                case 'male': return 'bg-[rgba(106,92,255,0.16)] text-[#6a5cff] border border-[rgba(106,92,255,0.42)]';
-                case 'female': return 'bg-[rgba(240,79,98,0.16)] text-[#f04f62] border border-[rgba(240,79,98,0.42)]';
-                case 'special': return 'bg-[rgba(24,179,104,0.16)] text-[#18b368] border border-[rgba(24,179,104,0.42)]';
-                default: return 'bg-gray-600 bg-opacity-20 text-gray-400 border border-gray-500 border-opacity-30';
+            switch (gender) {
+                case 'male':
+                    return 'bg-[rgba(106,92,255,0.16)] text-[#6a5cff] border border-[rgba(106,92,255,0.42)]';
+                case 'female':
+                    return 'bg-[rgba(240,79,98,0.16)] text-[#f04f62] border border-[rgba(240,79,98,0.42)]';
+                default:
+                    return 'bg-gray-600 bg-opacity-20 text-gray-400 border border-gray-500 border-opacity-30';
             }
         },
         genderLabel(gender) {
-            switch(gender) {
-                case 'male': return 'М';
-                case 'female': return 'Ж';
-                case 'special': return 'Спец';
-                default: return '?';
+            switch (gender) {
+                case 'male':
+                    return 'М';
+                case 'female':
+                    return 'Ж';
+                default:
+                    return '?';
             }
         },
         selectUser(user) {

@@ -1,0 +1,199 @@
+* {
+  box-sizing: border-box;
+}
+
+.editor-shell {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 10px;
+  padding: 8px;
+  min-height: 100vh;
+}
+
+.sidebar {
+  min-height: calc(100vh - 16px);
+}
+
+.brand h1 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  font-size: 11px;
+}
+
+.tabs {
+  margin: 0;
+  padding-left: 0;
+}
+
+.tabs li[role="tab"] a {
+  display: block;
+}
+
+.connection-card {
+  margin-top: auto;
+}
+
+.workspace {
+  min-width: 0;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.toolbar-actions,
+.action-row,
+.filters,
+.pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.messages {
+  margin-bottom: 10px;
+}
+
+.message {
+  padding: 6px 8px;
+  border: 1px solid #7f9db9;
+  background: #fff;
+}
+
+.message.good {
+  border-color: #0b7a0b;
+}
+
+.message.warn {
+  border-color: #7a5a00;
+}
+
+.message.bad {
+  border-color: #9e0000;
+}
+
+.view {
+  min-height: 0;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.95fr) minmax(400px, 1.05fr);
+  gap: 10px;
+  align-items: start;
+}
+
+.stack {
+  display: grid;
+  gap: 10px;
+}
+
+.list {
+  max-height: calc(100vh - 280px);
+  overflow: auto;
+  display: grid;
+  gap: 6px;
+}
+
+.list-item {
+  text-align: left;
+}
+
+.list-item.active {
+  outline: 1px dotted #000;
+  outline-offset: -4px;
+}
+
+.small {
+  font-size: 11px;
+}
+
+.muted {
+  color: #333;
+}
+
+label {
+  display: grid;
+  gap: 4px;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+}
+
+select[multiple] {
+  min-height: 110px;
+}
+
+textarea {
+  min-height: 82px;
+  resize: vertical;
+}
+
+.token-picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 6px;
+  max-height: 220px;
+  overflow: auto;
+  padding: 8px;
+}
+
+.token-check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.token-check input {
+  width: auto;
+}
+
+.divider {
+  height: 1px;
+  background: #808080;
+}
+
+.validation-list {
+  display: grid;
+  gap: 8px;
+}
+
+.validation-item {
+  padding: 8px;
+  border: 1px solid #7f9db9;
+  background: #fff;
+}
+
+.validation-item.bad {
+  border-color: #9e0000;
+}
+
+.validation-item.warn {
+  border-color: #7a5a00;
+}
+
+.validation-item.good {
+  border-color: #0b7a0b;
+}
+
+@media (max-width: 1100px) {
+  .editor-shell,
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    min-height: auto;
+  }
+}

@@ -1,9 +1,21 @@
+const SUPPORTED_GENDERS = ['male', 'female'];
+
+function coerceGender(raw) {
+    const g = typeof raw === 'string' ? raw.toLowerCase().trim() : '';
+    if (!g) return 'male';
+    if (SUPPORTED_GENDERS.includes(g)) return g;
+    console.warn('[UsersService] Unsupported gender value. Fallback to "male":', raw);
+    return 'male';
+}
+
 function createUserDraft(data = {}) {
     const { generateUid } = window.ContentEditorUid;
+    const gender = coerceGender(data.gender);
+
     return {
         id: (typeof data.id === 'string' && data.id.trim()) ? data.id.trim() : generateUid('usr'),
         nickname: data.nickname || '',
-        gender: data.gender || 'male', // male, female, special
+        gender,
         type: data.type || 'default',
         modifiers: data.modifiers || {
             threshold_bonus: 0,
@@ -25,15 +37,15 @@ function normalizeUserRecord(raw = {}) {
     if (typeof raw.nickname === 'string' && raw.nickname.trim()) {
         draft.nickname = raw.nickname.trim();
     }
-    if (raw.gender) draft.gender = raw.gender;
+    draft.gender = coerceGender(raw.gender);
     if (raw.type) draft.type = raw.type;
-    
+
     // Модификаторы
     if (raw.modifiers) {
         draft.modifiers.threshold_bonus = Number(raw.modifiers.threshold_bonus) || 0;
         draft.modifiers.angry_chance_bonus = Number(raw.modifiers.angry_chance_bonus) || 0;
     }
-    
+
     // Личные правила
     if (Array.isArray(raw.personal_rules)) {
         draft.personal_rules = raw.personal_rules.map(rule => ({
@@ -41,11 +53,11 @@ function normalizeUserRecord(raw = {}) {
             value: rule.value || ''
         }));
     }
-    
+
     if (typeof raw.notes === 'string') {
         draft.notes = raw.notes;
     }
-    
+
     return draft;
 }
 
@@ -68,24 +80,24 @@ async function loadUsers(rootContentHandle) {
             });
         }
     }
-    
+
     return users;
 }
 
 async function saveUser(rootContentHandle, fileName, userData) {
     const { getOptionalDirectoryHandle, writeJsonToFileHandle } = window.ContentEditorFsService;
     if (!rootContentHandle) throw new Error("Нет доступа к папке Content");
-    
+
     let usersDir = await getOptionalDirectoryHandle(rootContentHandle, 'Users');
     if (!usersDir) {
         usersDir = await rootContentHandle.getDirectoryHandle('Users', { create: true });
     }
-    
+
     const cleanFileName = fileName.endsWith('.json') ? fileName : `${fileName}.json`;
     const fileHandle = await usersDir.getFileHandle(cleanFileName, { create: true });
     const normalized = normalizeUserRecord(userData);
     await writeJsonToFileHandle(fileHandle, normalized);
-    
+
     return {
         fileHandle,
         fileName: cleanFileName,
@@ -96,10 +108,10 @@ async function saveUser(rootContentHandle, fileName, userData) {
 async function deleteUser(rootContentHandle, fileName) {
     const { getOptionalDirectoryHandle } = window.ContentEditorFsService;
     if (!rootContentHandle) return false;
-    
+
     const usersDir = await getOptionalDirectoryHandle(rootContentHandle, 'Users');
     if (!usersDir) return false;
-    
+
     try {
         await usersDir.removeEntry(fileName);
         return true;
