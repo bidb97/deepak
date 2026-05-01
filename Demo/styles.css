@@ -1019,7 +1019,7 @@ body.editor-mode #editor-app > aside {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  width: 13rem;
+  width: 14rem;
   flex-shrink: 0;
   border-right: 1px solid rgb(51 65 85);
   background-color: rgb(15 23 42);
@@ -1047,6 +1047,139 @@ body.editor-mode #editor-app .ed-list-detail-grid {
     grid-template-columns: minmax(0, min(600px, 52vw)) minmax(0, 1fr);
     align-items: start;
   }
+}
+
+/* Списки в карточках: по умолчанию — по высоте контента; потолок — по окну (скролл только если не влезло) */
+body.editor-mode #editor-app .ed-editor-scroll-list {
+  box-sizing: border-box;
+  max-height: calc(100dvh - 15rem);
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+body.editor-mode #editor-app .ed-editor-scroll-list--branch-paths {
+  max-height: calc(100dvh - 23rem);
+}
+
+
+
+/* Левое меню редактора: единая сетка и стили вкладок */
+body.editor-mode #editor-app nav.ed-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+body.editor-mode #editor-app .ed-nav-item {
+  box-sizing: border-box;
+  width: 100%;
+  border-radius: 0.5rem;
+  border-width: 0;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: none;
+  outline: none;
+  transition:
+    background-color 0.12s ease,
+    color 0.12s ease,
+    border-color 0.12s ease;
+}
+
+/* Первый уровень: общая «плитка» с рамкой */
+body.editor-mode #editor-app .ed-nav-panel {
+  border: 1px solid rgb(51 65 85 / 0.55) !important;
+  border-radius: 0.5rem;
+}
+
+body.editor-mode #editor-app .ed-nav-panel.ed-nav-item--off {
+  background-color: rgb(15 23 42 / 0.75);
+  color: rgb(148 163 184);
+}
+
+body.editor-mode #editor-app .ed-nav-panel.ed-nav-item--off:hover {
+  background-color: rgb(30 41 59 / 0.55);
+  border-color: rgb(71 85 105 / 0.85) !important;
+  color: rgb(241 245 249);
+}
+
+body.editor-mode #editor-app .ed-nav-item--off:not(.ed-nav-panel) {
+  background-color: transparent;
+  color: rgb(148 163 184);
+}
+
+body.editor-mode #editor-app .ed-nav-item--off:not(.ed-nav-panel):hover {
+  background-color: rgb(30 41 59 / 0.92);
+  color: rgb(241 245 249);
+}
+
+body.editor-mode #editor-app .ed-nav-item--on {
+  background-color: rgb(30 41 59);
+  color: rgb(255 255 255);
+}
+
+body.editor-mode #editor-app .ed-nav-panel.ed-nav-item--on {
+  border-color: rgb(71 85 105 / 0.9) !important;
+}
+
+body.editor-mode #editor-app .ed-nav-item--sub {
+  padding-left: 1.625rem;
+  font-size: 0.8125rem;
+}
+
+body.editor-mode #editor-app .ed-nav-substack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: 0.125rem;
+  padding-left: 0.5rem;
+}
+
+body.editor-mode #editor-app .ed-nav-group-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+body.editor-mode #editor-app .ed-nav-group-trigger {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+body.editor-mode #editor-app .ed-nav-panel.ed-nav-group-trigger.ed-nav-item--off.ed-nav-group-trigger--open {
+  border-color: rgb(71 85 105 / 0.7) !important;
+}
+
+body.editor-mode #editor-app .ed-nav-panel.ed-nav-item--on .ed-nav-group-chevron {
+  color: rgb(148 163 184);
+}
+
+body.editor-mode #editor-app .ed-nav-panel.ed-nav-item--off .ed-nav-group-chevron {
+  color: rgb(100 116 139);
+}
+
+body.editor-mode #editor-app .ed-nav-group-chevron {
+  flex-shrink: 0;
+  opacity: 0.95;
+  transition: transform 0.18s ease;
+}
+
+body.editor-mode #editor-app .ed-nav-group-chevron--open {
+  transform: rotate(90deg);
+}
+
+body.editor-mode #editor-app .ed-nav-group-trigger svg {
+  stroke-width: 2;
 }
 
 /* Общий поиск в панелях */
@@ -1136,6 +1269,10 @@ body.editor-mode #editor-app input[type="radio"] {
 body.editor-mode #editor-app nav[role="tablist"] button {
   border: 0 !important;
   box-shadow: none !important;
+}
+
+body.editor-mode #editor-app nav[role="tablist"] button.ed-nav-panel {
+  border: 1px solid rgb(51 65 85 / 0.55) !important;
 }
 
 body.editor-mode #editor-app button:focus-visible {

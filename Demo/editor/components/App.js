@@ -43,8 +43,27 @@ function requiresAnyToText(value) {
   data() {
     return {
       deletionModalOpen: false,
-      deletionUndoMax: EDITOR_DELETION_UNDO_LIMIT
+      deletionUndoMax: EDITOR_DELETION_UNDO_LIMIT,
+      navOpenTokens: false,
+      navOpenChats: false
     };
+  },
+  watch: {
+    "model.tab": {
+      immediate: true,
+      handler(tab) {
+        if (tab === "tags" || tab === "tokens") {
+          this.navOpenTokens = true;
+          this.navOpenChats = false;
+        } else if (tab === "dialogues" || tab === "branches") {
+          this.navOpenChats = true;
+          this.navOpenTokens = false;
+        } else {
+          this.navOpenTokens = false;
+          this.navOpenChats = false;
+        }
+      }
+    }
   },
   computed: {
     roles() {
@@ -73,6 +92,23 @@ function requiresAnyToText(value) {
         validation: "ValidationPanel"
       };
       return map[this.model.tab] || "TokensPanel";
+    },
+    tabLabelRu() {
+      const map = {
+        tokens: "Токены",
+        tags: "Теги",
+        characters: "Персонажи",
+        dialogues: "Чаты",
+        branches: "Ветки",
+        validation: "Проверка"
+      };
+      return map[this.model.tab] || this.model.tab;
+    },
+    navTokensGroupActive() {
+      return this.model.tab === "tags" || this.model.tab === "tokens";
+    },
+    navChatsGroupActive() {
+      return this.model.tab === "dialogues" || this.model.tab === "branches";
     }
   },
   methods: {
@@ -317,7 +353,12 @@ function requiresAnyToText(value) {
       this.updateSelections();
       await this.writeSingleDataFile("tags.json", "Сохранено: tags.json");
     },
-    async deleteTag() {
+    async deleteTag(fromListId) {
+      if (typeof fromListId === "string" && fromListId) {
+        if (!this.model.tagsData.tags.some((t) => t.id === fromListId)) return;
+        this.model.selectedTagId = fromListId;
+        this.updateSelections();
+      }
       if (!this.model.selectedTag) return;
       const tags = this.model.tagsData.tags;
       const idx = tags.indexOf(this.model.selectedTag);
@@ -351,7 +392,12 @@ function requiresAnyToText(value) {
       this.updateSelections();
       await this.writeSingleDataFile("tokens.json", "Сохранено: tokens.json");
     },
-    async deleteToken() {
+    async deleteToken(fromListId) {
+      if (typeof fromListId === "string" && fromListId) {
+        if (!this.model.tokensData.tokens.some((t) => t.id === fromListId)) return;
+        this.model.selectedTokenId = fromListId;
+        this.updateSelections();
+      }
       if (!this.model.selectedToken) return;
       const arr = this.model.tokensData.tokens;
       const idx = arr.indexOf(this.model.selectedToken);
@@ -380,7 +426,12 @@ function requiresAnyToText(value) {
       this.updateSelections();
       await this.writeSingleDataFile("characters.json", "Сохранено: characters.json");
     },
-    async deleteCharacter() {
+    async deleteCharacter(fromListId) {
+      if (typeof fromListId === "string" && fromListId) {
+        if (!this.model.charactersData.characters.some((c) => c.id === fromListId)) return;
+        this.model.selectedCharacterId = fromListId;
+        this.updateSelections();
+      }
       if (!this.model.selectedCharacter) return;
       const used = this.model.scenariosData.scenarios.some((scenario) => scenario.characterId === this.model.selectedCharacter.id);
       if (used) return this.setMessage("Нельзя удалить персонажа, пока есть сценарии с его characterId.", "bad");
@@ -417,7 +468,11 @@ function requiresAnyToText(value) {
       if (!this.model.selectedScenario?.id) return;
       window.location.hash = `#/game?scenario=${encodeURIComponent(this.model.selectedScenario.id)}`;
     },
-    async deleteScenario() {
+    async deleteScenario(fromListId) {
+      if (typeof fromListId === "string" && fromListId) {
+        if (!this.model.scenariosData.scenarios.some((s) => s.id === fromListId)) return;
+        this.selectScenario(fromListId);
+      }
       if (!this.model.selectedScenario) return;
       const list = this.model.scenariosData.scenarios;
       const idx = list.indexOf(this.model.selectedScenario);
@@ -534,7 +589,11 @@ function requiresAnyToText(value) {
       this.updateSelections();
     },
     addPath() { if (!this.model.selectedTurn) return; this.model.selectedTurn.paths.push({ id: `path_${Date.now()}`, title: "Новая ветка", requiresAny: [], reaction: "" }); this.model.selectedPathIndex = this.model.selectedTurn.paths.length - 1; this.updateSelections(); },
-    async deletePath() {
+    async deletePath(fromListIndex) {
+      if (typeof fromListIndex === "number" && !Number.isNaN(fromListIndex)) {
+        this.model.selectedPathIndex = fromListIndex;
+        this.updateSelections();
+      }
       if (!this.model.selectedScenario || !this.model.selectedTurn || !this.model.selectedPath) return;
       const scenarioId = this.model.selectedScenario.id;
       const turnIndex = this.model.selectedTurnIndex;
@@ -572,22 +631,57 @@ function requiresAnyToText(value) {
   },
   template: `
     <div id="editor-app" class="flex h-screen min-h-0 flex-row flex-nowrap items-stretch bg-slate-950 text-slate-100 antialiased [color-scheme:dark]">
-      <aside class="flex w-52 shrink-0 flex-col border-r border-slate-700 bg-slate-900 shadow-lg shadow-black/20">
+      <aside class="flex w-56 shrink-0 flex-col border-r border-slate-700 bg-slate-900 shadow-lg shadow-black/20">
         <div class="border-b border-slate-700 px-4 py-4">
           <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">I Am Deepak</p>
           <h1 class="mt-1 text-lg font-semibold leading-tight text-white">Редактор контента</h1>
         </div>
         <div class="flex flex-1 flex-col gap-3 overflow-y-auto px-4 py-4">
           <button type="button" class="rounded-lg border-0 bg-blue-600 px-3 py-2.5 text-sm font-medium text-white shadow-none hover:bg-blue-500" @click="openDemoFolder">Открыть папку Demo</button>
-          <button type="button" class="rounded-lg bg-slate-800 px-3 py-2.5 text-sm font-medium text-slate-100 hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50" :disabled="!model.demoHandle" @click="save">Сохранить JSON</button>
-          <a class="text-center text-sm font-medium text-blue-400 hover:text-blue-300 hover:underline" href="#/game">Открыть демку</a>
-          <nav class="flex flex-col gap-1 border-t border-slate-700 pt-4" role="tablist">
-            <button type="button" role="tab" :aria-selected="model.tab === 'tokens'" :class="model.tab === 'tokens' ? 'bg-slate-800 text-white' : 'bg-transparent text-slate-400 hover:bg-slate-800/90 hover:text-slate-100'" class="w-full rounded-lg border-0 px-3 py-2 text-left text-sm font-medium shadow-none ring-0" @click="model.tab = 'tokens'">Токены</button>
-            <button type="button" role="tab" :aria-selected="model.tab === 'tags'" :class="model.tab === 'tags' ? 'bg-slate-800 text-white' : 'bg-transparent text-slate-400 hover:bg-slate-800/90 hover:text-slate-100'" class="w-full rounded-lg border-0 px-3 py-2 text-left text-sm font-medium shadow-none ring-0" @click="model.tab = 'tags'">Теги</button>
-            <button type="button" role="tab" :aria-selected="model.tab === 'characters'" :class="model.tab === 'characters' ? 'bg-slate-800 text-white' : 'bg-transparent text-slate-400 hover:bg-slate-800/90 hover:text-slate-100'" class="w-full rounded-lg border-0 px-3 py-2 text-left text-sm font-medium shadow-none ring-0" @click="model.tab = 'characters'">Персонажи</button>
-            <button type="button" role="tab" :aria-selected="model.tab === 'dialogues'" :class="model.tab === 'dialogues' ? 'bg-slate-800 text-white' : 'bg-transparent text-slate-400 hover:bg-slate-800/90 hover:text-slate-100'" class="w-full rounded-lg border-0 px-3 py-2 text-left text-sm font-medium shadow-none ring-0" @click="model.tab = 'dialogues'">Диалоги</button>
-            <button type="button" role="tab" :aria-selected="model.tab === 'branches'" :class="model.tab === 'branches' ? 'bg-slate-800 text-white' : 'bg-transparent text-slate-400 hover:bg-slate-800/90 hover:text-slate-100'" class="w-full rounded-lg border-0 px-3 py-2 text-left text-sm font-medium shadow-none ring-0" @click="model.tab = 'branches'">Ветки</button>
-            <button type="button" role="tab" :aria-selected="model.tab === 'validation'" :class="model.tab === 'validation' ? 'bg-slate-800 text-white' : 'bg-transparent text-slate-400 hover:bg-slate-800/90 hover:text-slate-100'" class="w-full rounded-lg border-0 px-3 py-2 text-left text-sm font-medium shadow-none ring-0" @click="model.tab = 'validation'; refreshValidation();">Проверка</button>
+          <button type="button" class="rounded-lg border-0 bg-emerald-600 px-3 py-2.5 text-sm font-medium text-white shadow-none hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50" :disabled="!model.demoHandle" @click="save">Сохранить JSON</button>
+          <nav class="ed-sidebar-nav border-t border-slate-700 pt-4" role="tablist">
+            <button type="button" role="tab" :aria-selected="model.tab === 'characters'" class="ed-nav-panel ed-nav-item" :class="model.tab === 'characters' ? 'ed-nav-item--on' : 'ed-nav-item--off'" @click="model.tab = 'characters'">Персонажи</button>
+            <div class="ed-nav-group-wrap">
+              <button
+                type="button"
+                class="ed-nav-panel ed-nav-group-trigger ed-nav-item"
+                :class="[
+                  navOpenTokens ? 'ed-nav-group-trigger--open' : '',
+                  navTokensGroupActive ? 'ed-nav-item--on' : 'ed-nav-item--off'
+                ]"
+                :aria-expanded="navOpenTokens"
+                aria-controls="editor-nav-group-tokens"
+                @click="navOpenTokens = !navOpenTokens"
+              >
+                <span>Токены</span>
+                <i data-lucide="chevron-right" class="ed-nav-group-chevron h-3.5 w-3.5" :class="{ 'ed-nav-group-chevron--open': navOpenTokens }"></i>
+              </button>
+              <div id="editor-nav-group-tokens" v-show="navOpenTokens" class="ed-nav-substack">
+                <button type="button" role="tab" :aria-selected="model.tab === 'tags'" class="ed-nav-item ed-nav-item--sub" :class="model.tab === 'tags' ? 'ed-nav-item--on' : 'ed-nav-item--off'" @click="model.tab = 'tags'">Теги</button>
+                <button type="button" role="tab" :aria-selected="model.tab === 'tokens'" class="ed-nav-item ed-nav-item--sub" :class="model.tab === 'tokens' ? 'ed-nav-item--on' : 'ed-nav-item--off'" @click="model.tab = 'tokens'">Токены</button>
+              </div>
+            </div>
+            <div class="ed-nav-group-wrap">
+              <button
+                type="button"
+                class="ed-nav-panel ed-nav-group-trigger ed-nav-item"
+                :class="[
+                  navOpenChats ? 'ed-nav-group-trigger--open' : '',
+                  navChatsGroupActive ? 'ed-nav-item--on' : 'ed-nav-item--off'
+                ]"
+                :aria-expanded="navOpenChats"
+                aria-controls="editor-nav-group-chats"
+                @click="navOpenChats = !navOpenChats"
+              >
+                <span>Чаты</span>
+                <i data-lucide="chevron-right" class="ed-nav-group-chevron h-3.5 w-3.5" :class="{ 'ed-nav-group-chevron--open': navOpenChats }"></i>
+              </button>
+              <div id="editor-nav-group-chats" v-show="navOpenChats" class="ed-nav-substack">
+                <button type="button" role="tab" :aria-selected="model.tab === 'dialogues'" class="ed-nav-item ed-nav-item--sub" :class="model.tab === 'dialogues' ? 'ed-nav-item--on' : 'ed-nav-item--off'" @click="model.tab = 'dialogues'">Чаты</button>
+                <button type="button" role="tab" :aria-selected="model.tab === 'branches'" class="ed-nav-item ed-nav-item--sub" :class="model.tab === 'branches' ? 'ed-nav-item--on' : 'ed-nav-item--off'" @click="model.tab = 'branches'">Ветки</button>
+              </div>
+            </div>
+            <button type="button" role="tab" :aria-selected="model.tab === 'validation'" class="ed-nav-panel ed-nav-item" :class="model.tab === 'validation' ? 'ed-nav-item--on' : 'ed-nav-item--off'" @click="model.tab = 'validation'; refreshValidation();">Проверка</button>
           </nav>
           <div class="mt-auto shrink-0 flex flex-col gap-2">
             <button type="button" class="rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-left text-xs font-medium text-slate-200 hover:bg-slate-700" @click="deletionModalOpen = true">
@@ -604,14 +698,11 @@ function requiresAnyToText(value) {
         <header class="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-slate-800 px-6 py-4">
           <div>
             <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Раздел</p>
-            <p class="text-base font-semibold text-white">{{ model.tab }}</p>
+            <p class="text-base font-semibold text-white">{{ tabLabelRu }}</p>
           </div>
-          <div class="flex flex-wrap gap-2">
-            <button type="button" class="rounded-lg border-0 bg-slate-800 px-3 py-2 text-sm font-medium text-slate-200 shadow-none hover:bg-slate-700" @click="reload">Перезагрузить</button>
-            <button type="button" class="rounded-lg border-0 bg-slate-800 px-3 py-2 text-sm font-medium text-slate-200 shadow-none hover:bg-slate-700" @click="refreshValidation(); model.tab='validation'">Проверить связи</button>
-          </div>
+          <a href="#/game" class="inline-flex shrink-0 items-center justify-center rounded-lg border-0 bg-blue-600 px-3 py-2 text-sm font-medium text-white no-underline shadow-none hover:bg-blue-500">Открыть демку</a>
         </header>
-        <div class="min-h-0 flex-1 overflow-y-auto px-6 py-6">
+        <div class="min-h-0 flex-1 overflow-y-auto px-6">
           <section v-if="model.message" class="mb-4 rounded-lg border px-4 py-3 text-sm"
             :class="model.message.type === 'bad' ? 'border-red-700/70 bg-red-950/50 text-red-100' : model.message.type === 'warn' ? 'border-amber-700/60 bg-amber-950/40 text-amber-100' : 'border-emerald-700/60 bg-emerald-950/40 text-emerald-100'">
             {{ model.message.text }}

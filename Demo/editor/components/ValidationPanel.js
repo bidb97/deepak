@@ -17,7 +17,7 @@
     template: `
     <section class="rounded-xl border border-slate-700 bg-slate-900 p-4 shadow-lg shadow-black/30">
       <search-field v-model="model.validationSearch" variant="panel" placeholder="Фильтр сообщений проверки" />
-      <div class="mt-4 grid gap-3">
+      <div class="ed-editor-scroll-list mt-4 grid gap-3">
         <div v-if="!items.length" class="rounded-lg border border-emerald-700/60 bg-emerald-950/40 px-4 py-3 text-sm text-emerald-100">
           <strong class="block text-emerald-200">OK</strong>
           <div class="mt-1 text-emerald-100/90">Связи выглядят корректно.</div>

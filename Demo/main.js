@@ -35,6 +35,13 @@
       this.syncRoute();
       window.addEventListener("hashchange", this.syncRoute);
     },
+    updated() {
+      this.$nextTick(() => {
+        if (this.route !== "editor" || typeof window.lucide?.createIcons !== "function") return;
+        const el = document.getElementById("editor-app");
+        if (el) window.lucide.createIcons({ root: el });
+      });
+    },
     unmounted() {
       window.removeEventListener("hashchange", this.syncRoute);
     },

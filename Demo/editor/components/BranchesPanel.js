@@ -10,6 +10,9 @@
     "mt-1 block w-full rounded-md border border-slate-600 bg-slate-800 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 shadow-none focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40";
   const mono = inp + " font-mono";
 
+  const trashRowDeleteSvg =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none block" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>';
+
   root.BranchesPanel = {
     components: {
       MultiSelect: root.MultiSelect,
@@ -88,18 +91,28 @@
           <button type="button" class="rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-500 disabled:opacity-50" :disabled="!model.selectedPath" @click="$emit('delete-path')">Удалить ветку</button>
         </div>
         <search-field v-model="model.branchPathSearch" variant="panel" placeholder="Поиск веток" class="mt-3" />
-        <div class="mt-3 max-h-[min(50vh,24rem)] space-y-2 overflow-y-auto pr-1">
-          <button
+        <div class="ed-editor-scroll-list ed-editor-scroll-list--branch-paths mt-3 space-y-2">
+          <div
             v-for="ent in filteredBranchPathEntries"
             :key="ent.path.id || ent.index"
-            type="button"
-            :class="ent.index === model.selectedPathIndex ? 'border-blue-500 bg-blue-950/60 ring-1 ring-blue-500/80' : 'border-slate-700 bg-slate-800/60 hover:bg-slate-800'"
-            class="w-full rounded-lg border px-3 py-2.5 text-left text-sm"
-            @click="$emit('select-path', ent.index)"
+            class="relative"
           >
-            <span class="font-semibold text-slate-100">{{ ent.path.title || ent.path.id || "Без названия" }}</span>
-            <span class="mt-0.5 block text-xs text-slate-400">{{ ent.path.reaction || "Нет реакции" }}</span>
-          </button>
+            <button type="button"
+              :class="ent.index === model.selectedPathIndex ? 'border-blue-500 bg-blue-950/60 ring-1 ring-blue-500/80' : 'border-slate-700 bg-slate-800/60 hover:bg-slate-800'"
+              class="w-full rounded-lg border py-2.5 pl-3 pr-10 text-left text-sm"
+              @click="$emit('select-path', ent.index)"
+            >
+              <span class="font-semibold text-slate-100">{{ ent.path.title || ent.path.id || "Без названия" }}</span>
+              <span class="mt-0.5 block text-xs text-slate-400">{{ ent.path.reaction || "Нет реакции" }}</span>
+            </button>
+            <button
+              type="button"
+              class="absolute right-1 top-1/2 z-10 -translate-y-1/2 rounded-md border-0 bg-transparent p-1.5 text-slate-400 shadow-none hover:bg-slate-900/60 hover:text-red-400"
+              title="Удалить"
+              aria-label="Удалить ветку"
+              @click.stop="$emit('delete-path', ent.index)"
+            >${trashRowDeleteSvg}</button>
+          </div>
         </div>
       </section>
       <section v-if="model.selectedPath" class="rounded-xl border border-slate-700 bg-slate-900 p-4 shadow-lg shadow-black/30">

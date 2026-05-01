@@ -8,6 +8,9 @@
     return [...new Set(String(value || "").split(",").map((item) => item.trim()).filter(Boolean))];
   }
 
+  const trashRowDeleteSvg =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none block" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>';
+
   root.DialoguesPanel = {
     components: {
       SearchField: root.SearchField,
@@ -142,14 +145,23 @@
           </div>
           <button type="button" class="shrink-0 rounded-lg border-0 bg-slate-800 px-3 py-2 text-sm font-medium text-slate-200 shadow-none hover:bg-slate-700" @click="$emit('add-scenario')">+ Новый сценарий</button>
         </div>
-        <div class="mt-4 max-h-[min(50vh,24rem)] space-y-2 overflow-y-auto pr-1">
-          <button v-for="scenario in filteredScenarios" :key="scenario.id" type="button"
-            :class="model.selectedScenarioId === scenario.id ? 'border-blue-500 bg-blue-950/60 ring-1 ring-blue-500/80' : 'border-slate-700 bg-slate-800/60 hover:bg-slate-800'"
-            class="w-full rounded-lg border px-3 py-2.5 text-left text-sm"
-            @click="$emit('select-scenario', scenario.id)">
-            <span class="font-semibold text-slate-100">{{ scenario.title || scenario.id }}</span>
-            <span class="mt-0.5 block text-xs text-slate-400"><template v-if="characterName(scenario.characterId)">{{ characterName(scenario.characterId) }} · </template>ходов: {{ scenario.turns.length }}</span>
-          </button>
+        <div class="ed-editor-scroll-list mt-4 space-y-2">
+          <div v-for="scenario in filteredScenarios" :key="scenario.id" class="relative">
+            <button type="button"
+              :class="model.selectedScenarioId === scenario.id ? 'border-blue-500 bg-blue-950/60 ring-1 ring-blue-500/80' : 'border-slate-700 bg-slate-800/60 hover:bg-slate-800'"
+              class="w-full rounded-lg border py-2.5 pl-3 pr-10 text-left text-sm"
+              @click="$emit('select-scenario', scenario.id)">
+              <span class="font-semibold text-slate-100">{{ scenario.title || scenario.id }}</span>
+              <span class="mt-0.5 block text-xs text-slate-400"><template v-if="characterName(scenario.characterId)">{{ characterName(scenario.characterId) }} · </template>ходов: {{ scenario.turns.length }}</span>
+            </button>
+            <button
+              type="button"
+              class="absolute right-1 top-1/2 z-10 -translate-y-1/2 rounded-md border-0 bg-transparent p-1.5 text-slate-400 shadow-none hover:bg-slate-900/60 hover:text-red-400"
+              title="Удалить"
+              aria-label="Удалить сценарий"
+              @click.stop="$emit('delete-scenario', scenario.id)"
+            >${trashRowDeleteSvg}</button>
+          </div>
         </div>
       </section>
       <section v-if="model.selectedScenario" class="rounded-xl border border-slate-700 bg-slate-900 p-4 shadow-lg shadow-black/30">

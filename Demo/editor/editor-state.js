@@ -3,7 +3,7 @@
 
   function createEditorState() {
     return {
-      tab: "tokens",
+      tab: "characters",
       demoHandle: null,
       tokensData: { tokens: [] },
       tagsData: { tags: [] },
