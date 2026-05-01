@@ -8,13 +8,11 @@
   function collectFeatures(tokens) {
     const concepts = new Set();
     const roles = new Set();
-    const risks = new Set();
     const roleCounts = {};
     const conceptCounts = {};
 
     tokens.forEach((token) => {
       roles.add(token.role);
-      risks.add(token.risk);
       roleCounts[token.role] = (roleCounts[token.role] || 0) + 1;
       (token.concepts || []).forEach((concept) => {
         concepts.add(concept);
@@ -22,7 +20,7 @@
       });
     });
 
-    return { concepts, roles, risks, roleCounts, conceptCounts };
+    return { concepts, roles, roleCounts, conceptCounts };
   }
 
   function scorePath(features, path) {
@@ -60,7 +58,7 @@
         notes.push({ type: "good", text: `Закрыт смысловой слот: ${matched.join(", ")}.` });
       } else {
         score -= 15;
-        notes.push({ type: "bad", text: `Не закрыт смысловой слот: ${group.join(" / ")}.` });
+        notes.push({ type: "bad", text: `Не закрыт смысловой слот: ${group.join(", ")}.` });
       }
     });
 
@@ -192,8 +190,6 @@
     if (hasDanglingConnector(tokens)) addProblem("bad", "Связка стоит в плохом месте.", 8);
     if (hasVerbWithoutTarget(tokens)) addProblem("bad", "Есть действие, но рядом нет понятного объекта или детали.", 10);
     if (hasEarlyObjectBeforeAction(tokens)) addProblem("bad", "Объект стоит до действия и ломает порядок фразы.", 8);
-    if (features.risks.has("trap")) addProblem("bad", "В ответе есть ловушка.", 15);
-    if (features.risks.has("illegal")) notes.push({ type: "warn", text: "В ответе есть опасные токены. Это может быть осознанным рискованным путём." });
     return {
       score: clamp(score, -50, 30),
       hardFailures,
@@ -204,11 +200,10 @@
     };
   }
 
-  function calculateFinalScore(pathResult, formResult, features) {
+  function calculateFinalScore(pathResult, formResult) {
     let score = pathResult.score + formResult.score;
     if (pathResult.isUnknown || formResult.hardFailures >= 1 || formResult.isBroken) score = Math.min(score, 45);
     if (formResult.isGarbage) score = Math.min(score, 28);
-    if (features.risks.has("trap") && !features.risks.has("illegal")) score = Math.min(score, 55);
     return clamp(score, 0, 100);
   }
 

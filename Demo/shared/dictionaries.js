@@ -24,35 +24,12 @@
     style: "стиль"
   };
 
-  const riskLabels = {
-    safe: "безопасный",
-    trap: "ловушка",
-    illegal: "опасный/запрещенный"
-  };
-
-  const tokenKindLabels = {
-    common: "Общие",
-    scenario: "Сценарные"
-  };
-
   function formatRole(role) {
     return roleLabels[role] || role;
   }
 
-  function formatRisk(risk) {
-    return riskLabels[risk] || risk;
-  }
-
-  function formatTokenKind(kind) {
-    return tokenKindLabels[kind] || kind;
-  }
-
   root.dictionaries = {
     roleLabels,
-    riskLabels,
-    tokenKindLabels,
-    formatRole,
-    formatRisk,
-    formatTokenKind
+    formatRole
   };
 })();

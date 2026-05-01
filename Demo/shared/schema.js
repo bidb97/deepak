@@ -13,13 +13,32 @@
   }
 
   function normalizeTokenList(list) {
-    return (Array.isArray(list) ? list : []).map((token) => ({
-      id: String(token?.id || "").trim(),
-      text: String(token?.text || ""),
-      role: String(token?.role || "object").trim() || "object",
-      concepts: normalizeStringArray(token?.concepts),
-      risk: String(token?.risk || "safe").trim() || "safe",
-      topics: normalizeStringArray(token?.topics)
+    return (Array.isArray(list) ? list : []).map((token) => {
+      const legacyTags = normalizeStringArray(token?.tags);
+      const tagIds = normalizeStringArray(token?.tagIds);
+      const mergedTagIds = legacyTags.length ? [...new Set([...tagIds, ...legacyTags])] : tagIds;
+      return {
+        id: String(token?.id || "").trim(),
+        text: String(token?.text || ""),
+        tagIds: mergedTagIds
+      };
+    });
+  }
+
+  function normalizeKeywordTokenRefs(list) {
+    return (Array.isArray(list) ? list : []).map((item) => ({
+      tokenId: String(item?.tokenId || "").trim(),
+      role: String(item?.role || "object").trim() || "object",
+      concepts: normalizeStringArray(item?.concepts)
+    }));
+  }
+
+  function normalizeKeywords(list) {
+    return (Array.isArray(list) ? list : []).map((keyword) => ({
+      id: String(keyword?.id || "").trim(),
+      text: String(keyword?.text || ""),
+      tokens: normalizeKeywordTokenRefs(keyword?.tokens),
+      tagIds: normalizeStringArray(keyword?.tagIds)
     }));
   }
 
@@ -44,16 +63,24 @@
     const turns = Array.isArray(scenario?.turns) ? scenario.turns : [];
     return turns.map((turn) => ({
       request: String(turn?.request || ""),
-      contextTokens: normalizeStringArray(turn?.contextTokens),
-      memoryTokens: normalizeStringArray(turn?.memoryTokens),
+      keywords: normalizeKeywords(turn?.keywords),
       paths: normalizePaths(turn?.paths)
     }));
   }
 
   function normalizeTokensData(raw) {
     return {
-      common: normalizeTokenList(raw?.common),
-      scenario: normalizeTokenList(raw?.scenario)
+      tokens: normalizeTokenList(raw?.tokens)
+    };
+  }
+
+  function normalizeTagsData(raw) {
+    const tags = (Array.isArray(raw?.tags) ? raw.tags : []).map((tag) => ({
+      id: String(tag?.id || "").trim(),
+      title: String(tag?.title || "").trim()
+    }));
+    return {
+      tags: tags.filter((tag) => tag.id).sort((a, b) => a.id.localeCompare(b.id))
     };
   }
 
@@ -83,6 +110,7 @@
   root.schema = {
     normalizeStringArray,
     normalizeTokensData,
+    normalizeTagsData,
     normalizeCharactersData,
     normalizeScenariosData
   };

@@ -4,13 +4,58 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>I Am Deepak — Demo</title>
+    <script>
+      (function () {
+        if (window.location.hash === "#/editor")
+          document.documentElement.classList.add("editor-mode");
+      })();
+    </script>
+    <style>
+      /* До монтирования Vue: один кадр без светлой вспышки при #/editor */
+      html.editor-mode {
+        background-color: #020617;
+        color-scheme: dark;
+      }
+      html.editor-mode body {
+        background-color: #020617;
+        color-scheme: dark;
+      }
+    </style>
     <link rel="stylesheet" href="https://unpkg.com/98.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.default.min.css"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        important: "body.editor-mode",
+        corePlugins: { preflight: false },
+        /* Только произвольные классы; pattern+variants в safelist на CDN раздувает CSS и вешает вкладку */
+        safelist: [
+          "max-w-[17rem]",
+          "min-w-[10rem]",
+          "min-w-[140px]",
+          "min-w-[150px]",
+          "max-h-[min(60vh,28rem)]",
+          "max-h-[min(50vh,24rem)]",
+          "[color-scheme:dark]"
+        ]
+      };
+    </script>
     <link rel="stylesheet" href="styles.css" />
-    <link rel="stylesheet" href="editor.css" />
   </head>
   <body>
+    <script>
+      (function () {
+        var ed = window.location.hash === "#/editor";
+        document.documentElement.classList.toggle("editor-mode", ed);
+        document.body.classList.toggle("editor-mode", ed);
+      })();
+    </script>
     <div id="app"></div>
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
     <script src="shared/dictionaries.js"></script>
     <script src="shared/schema.js"></script>
@@ -22,7 +67,10 @@
     <script src="game/GameApp.js"></script>
     <script src="editor/editor-state.js"></script>
     <script src="editor/editor-api.js"></script>
+    <script src="editor/components/MultiSelect.js"></script>
+    <script src="editor/components/SearchField.js"></script>
     <script src="editor/components/TokensPanel.js"></script>
+    <script src="editor/components/TagsPanel.js"></script>
     <script src="editor/components/CharactersPanel.js"></script>
     <script src="editor/components/DialoguesPanel.js"></script>
     <script src="editor/components/BranchesPanel.js"></script>

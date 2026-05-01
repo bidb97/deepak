@@ -11,6 +11,75 @@
     return [...new Set(ids || [])].map((id) => tokenById.get(id)).filter(Boolean);
   }
 
+  const commonTokenRefs = {
+    hello: { role: "greeting", concepts: ["polite"] },
+    hi: { role: "greeting", concepts: ["friendly"] },
+    i: { role: "subject", concepts: [] },
+    you: { role: "subject", concepts: [] },
+    not: { role: "negation", concepts: ["negation"] },
+    can: { role: "modal", concepts: ["can"] },
+    please: { role: "polite", concepts: ["polite"] },
+    thanks: { role: "closing", concepts: ["closing"] },
+    first: { role: "intro", concepts: ["order"] },
+    then: { role: "intro", concepts: ["order"] },
+    if: { role: "connector", concepts: ["condition"] },
+    and: { role: "connector", concepts: ["connector"] },
+    but: { role: "connector", concepts: ["contrast"] },
+    because: { role: "connector", concepts: ["because"] },
+    comma: { role: "comma", concepts: ["punctuation"] },
+    period: { role: "sentence_end", concepts: ["punctuation"] },
+    question: { role: "sentence_end", concepts: ["punctuation"] }
+  };
+
+  function createContextToken(tokenById, tokenRef) {
+    const token = tokenById.get(tokenRef.tokenId);
+    if (!token) return null;
+    return {
+      ...token,
+      role: tokenRef.role || "object",
+      concepts: Array.isArray(tokenRef.concepts) ? tokenRef.concepts : []
+    };
+  }
+
+  function getContextTokensByIds(tokenById, ids) {
+    return getTokensByIds(tokenById, ids)
+      .map((token) => createContextToken(tokenById, { tokenId: token.id, ...(commonTokenRefs[token.id] || { role: "object", concepts: [] }) }))
+      .filter(Boolean);
+  }
+
+  function mergeContextToken(out, seen, token) {
+    if (!token) return;
+    const existing = seen.get(token.id);
+    if (existing) {
+      existing.concepts = [...new Set([...(existing.concepts || []), ...(token.concepts || [])])];
+      if (!existing.role && token.role) existing.role = token.role;
+      return;
+    }
+    seen.set(token.id, token);
+    out.push(token);
+  }
+
+  function mergeKeywordTokens(tokenById, allTokens, keyword) {
+    const explicit = (keyword.tokens || []).map((tokenRef) => createContextToken(tokenById, tokenRef)).filter(Boolean);
+    const tagSet = new Set(keyword.tagIds || []);
+    const fromTags =
+      tagSet.size > 0
+        ? allTokens
+            .filter((token) => (token.tagIds || []).some((id) => tagSet.has(id)))
+            .map((token) => createContextToken(tokenById, { tokenId: token.id, role: "object", concepts: [] }))
+            .filter(Boolean)
+        : [];
+    const seen = new Map();
+    const out = [];
+    for (const token of explicit) {
+      mergeContextToken(out, seen, token);
+    }
+    for (const token of fromTags) {
+      mergeContextToken(out, seen, token);
+    }
+    return out;
+  }
+
   function renderNote(note) {
     return `<li class="${note.type}">${note.text}</li>`;
   }
@@ -58,7 +127,6 @@
         scenarios: [],
         audio: null,
         userAudio: null,
-        cowAudio: null,
         musicStarted: false,
         musicUnlocked: false,
         answerSortable: null,
@@ -70,12 +138,14 @@
         isRiceOpen: false,
         isFlyOpen: false,
         isSettingsOpen: false,
+        isResultOpen: false,
         demoDirectoryHandle: null,
         shiftStarted: false,
         conversations: [],
         activeConversationId: null,
         unreadBiminiTotal: 0,
-        incomingConversationTimerId: null,
+        characterPickerId: "",
+        scenarioPickerId: "",
         accessMessage: "",
         resultHtml: `<div class="empty-result">Собери ответ и нажми «Отправить».</div>`,
         snake: createSnakeState(),
@@ -103,7 +173,7 @@
     },
     computed: {
       currentTurn() {
-        return this.activeConversationScenario?.turns?.[this.activeConversation?.turnIndex || 0] || { request: "", contextTokens: [], memoryTokens: [], paths: [] };
+        return this.activeConversationScenario?.turns?.[this.activeConversation?.turnIndex || 0] || { request: "", keywords: [], paths: [] };
       },
       currentCharacter() {
         return this.charactersById.get(this.activeConversationScenario?.characterId) || { name: "Ожидание диалога" };
@@ -111,31 +181,63 @@
       musicLabel() {
         return this.isMusicEnabled ? "Выключить музыку" : "Включить музыку";
       },
-      contextStateHtml() {
-        const memoryTokens = this.memoryTokens;
-        const memory = memoryTokens.length > 0
-          ? `Память: ${memoryTokens.map((token) => `<span>${token.text}</span>`).join("")}`
-          : "Память пока пустая.";
-        return `Ход ${(this.activeConversation?.turnIndex || 0) + 1} из ${this.activeConversationScenario?.turns?.length || 0}. ${memory}`;
+      questionProgressLabel() {
+        if (!this.activeConversation || !this.activeConversationScenario) return "—";
+        return `${this.activeConversation.turnIndex + 1} из ${this.activeConversationScenario.turns.length}`;
+      },
+      scenarioOptions() {
+        return this.scenarios
+          .filter((scenario) => !this.characterPickerId || scenario.characterId === this.characterPickerId)
+          .map((scenario) => ({
+          id: scenario.id,
+          title: scenario.title || scenario.id,
+          character: this.getScenarioCharacter(scenario).name
+        }));
+      },
+      characterOptions() {
+        const ids = [...new Set(this.scenarios.map((scenario) => scenario.characterId).filter(Boolean))];
+        return ids.map((id) => {
+          const character = this.charactersById.get(id) || { name: id };
+          return { id, name: character.name || id };
+        });
       },
       tokenGroups() {
-        const commonTokens = getTokensByIds(this.tokenById, ["hello", "hi", "i", "you", "not", "can", "please", "thanks"]);
-        const connectorTokens = getTokensByIds(this.tokenById, ["first", "then", "if", "and", "but", "because"]);
-        const punctuationTokens = getTokensByIds(this.tokenById, ["comma", "period", "question"]);
-        const contextTokens = getTokensByIds(this.tokenById, this.currentTurn.contextTokens || []);
-        const contextSet = new Set(contextTokens.map((token) => token.id));
-        const memoryTokens = this.memoryTokens.filter((token) => !contextSet.has(token.id));
+        const commonTokens = getContextTokensByIds(this.tokenById, ["hello", "hi", "i", "you", "not", "can", "please", "thanks"]);
+        const connectorTokens = getContextTokensByIds(this.tokenById, ["first", "then", "if", "and", "but", "because"]);
+        const punctuationTokens = getContextTokensByIds(this.tokenById, ["comma", "period", "question"]);
+        const revealedKeywordIds = new Set(this.activeConversation?.revealedKeywordIds || []);
+        const turns = this.activeConversationScenario?.turns || [];
+        const visibleTurns = turns.slice(0, (this.activeConversation?.turnIndex || 0) + 1);
+        const visibleKeywords = visibleTurns.flatMap((turn) => turn.keywords || []);
+        const revealedKeywords = visibleKeywords
+          .map((keyword, index) => ({ keyword, sourceClass: `source-${index % 6}` }))
+          .filter(({ keyword }) => revealedKeywordIds.has(keyword.id));
+        const contextSeen = new Set();
+        const contextTokens = [];
+        revealedKeywords.forEach(({ keyword, sourceClass }) => {
+          mergeKeywordTokens(this.tokenById, this.tokens, keyword).forEach((token) => {
+            if (contextSeen.has(token.id)) return;
+            contextSeen.add(token.id);
+            contextTokens.push({ ...token, sourceClass, sourceLabel: keyword.text || keyword.id });
+          });
+        });
         const groups = [
           ["Общие", commonTokens],
           ["Связки", connectorTokens],
           ["Знаки", punctuationTokens],
-          ["Контекст сообщения", contextTokens]
+          ["Контекст", contextTokens]
         ].filter(([, tokens]) => tokens.length > 0);
-        if (memoryTokens.length > 0) groups.push(["Память диалога", memoryTokens]);
         return groups.map(([title, tokens]) => ({ title, tokens }));
       },
-      memoryTokens() {
-        return getTokensByIds(this.tokenById, this.activeConversation?.memoryTokenIds || []);
+      contextTokens() {
+        const coreGroupTitles = new Set(["Общие", "Связки", "Знаки"]);
+        const seen = new Map();
+        const out = [];
+        this.tokenGroups
+          .filter((group) => !coreGroupTitles.has(group.title))
+          .flatMap((group) => group.tokens)
+          .forEach((token) => mergeContextToken(out, seen, token));
+        return out;
       },
       highlightedTokenIds() {
         const ids = new Set();
@@ -189,7 +291,7 @@
         this.resultHtml = `<div class="result-card"><p class="score warn">Нужен доступ</p><p>${this.accessMessage}</p></div>`;
       },
       applyContent(content) {
-        this.tokens = [...content.tokensData.common, ...content.tokensData.scenario];
+        this.tokens = content.tokensData.tokens;
         this.tokenById = new Map(this.tokens.map((token) => [token.id, token]));
         this.charactersById = new Map(content.charactersData.characters.map((character) => [character.id, character]));
         this.scenarios = content.scenariosData.scenarios;
@@ -197,7 +299,10 @@
         this.conversations = [];
         this.activeConversationId = null;
         this.unreadBiminiTotal = 0;
+        this.characterPickerId = this.scenarios[0]?.characterId || "";
+        this.scenarioPickerId = this.scenarios[0]?.id || "";
         this.$nextTick(this.initSortables);
+        this.$nextTick(this.openScenarioFromHash);
       },
       getRandomScenario() {
         return this.scenarios[Math.floor(Math.random() * this.scenarios.length)];
@@ -254,24 +359,14 @@
         this.shiftStarted = true;
         this.musicUnlocked = true;
         root.audio.startMusic(this);
-        this.scheduleCowAmbient();
-        this.ensureConversationExists();
-        this.startIncomingConversationLoop();
-      },
-      scheduleCowAmbient() {
-        if (!this.musicUnlocked) return;
-        const delay = 25000 + Math.floor(Math.random() * 10000);
-        window.setTimeout(() => {
-          root.audio.playCowAmbient(this);
-          this.scheduleCowAmbient();
-        }, delay);
       },
       toggleMusic() {
         root.audio.toggleBackgroundMusic(this);
       },
       addToken(tokenId, insertIndex = null) {
         if (!this.activeConversation) return;
-        const token = this.tokenById.get(tokenId);
+        const visibleTokens = this.tokenGroups.flatMap((group) => group.tokens);
+        const token = [...visibleTokens].reverse().find((item) => item.id === tokenId);
         if (!token) return;
         if (insertIndex === null) this.activeConversation.answer.push(token);
         else this.activeConversation.answer.splice(insertIndex, 0, token);
@@ -286,18 +381,20 @@
         if (!this.activeConversation) return;
         this.activeConversation.answer = [];
         this.resultHtml = `<div class="empty-result">Собери ответ и нажми «Отправить».</div>`;
+        this.isResultOpen = false;
         this.$nextTick(this.initAnswerSortable);
       },
       pushUserMessage(conversationId, text, delay = getRandomMessageDelay()) {
         const conversation = this.conversations.find((item) => item.id === conversationId);
         if (!conversation) return;
+        const turnIndex = conversation.turnIndex;
         conversation.isWaitingForUser = true;
         window.setTimeout(() => {
           const nextConversation = this.conversations.find((item) => item.id === conversationId);
           if (!nextConversation) return;
           const scenario = this.scenarios.find((item) => item.id === nextConversation.scenarioId);
           const speaker = this.getScenarioCharacter(scenario).name;
-          nextConversation.chatHistory.push({ speaker, text, kind: "user" });
+          nextConversation.chatHistory.push({ speaker, text, kind: "user", turnIndex });
           nextConversation.isWaitingForUser = false;
           if (!this.isBiminiOpen || this.activeConversationId !== conversationId) {
             nextConversation.unread += 1;
@@ -310,12 +407,13 @@
         if (!this.activeConversation || this.activeConversation.isWaitingForUser) return;
         if (this.activeConversation.answer.length === 0) {
           this.resultHtml = `<div class="result-card"><p class="score bad">0%</p><p>Дипак молчит. Пользователь злится.</p></div>`;
+          this.isResultOpen = true;
           return;
         }
         const features = root.scoring.collectFeatures(this.activeConversation.answer);
         const formResult = root.scoring.evaluateForm(this.activeConversation.answer, features);
         const pathResult = root.scoring.detectBestPath(features, this.currentTurn.paths, formResult);
-        const score = root.scoring.calculateFinalScore(pathResult, formResult, features);
+        const score = root.scoring.calculateFinalScore(pathResult, formResult);
         const tone = score >= 80 ? "good" : score >= 50 ? "warn" : "bad";
         const answerText = this.activeConversation.answer.map((token) => token.text).join(" ");
         this.resultHtml = `
@@ -327,24 +425,60 @@
             <ul class="result-list">${pathResult.notes.map(renderNote).join("")}${formResult.notes.map(renderNote).join("")}</ul>
           </div>
         `;
+        this.isResultOpen = true;
         const reaction = this.advanceDialogue(pathResult, answerText);
         if (reaction) this.pushUserMessage(this.activeConversation.id, reaction, getRandomMessageDelay());
       },
       advanceDialogue(pathResult, answerText) {
         if (!this.activeConversation) return "";
-        const currentTurn = this.currentTurn;
         const reaction = pathResult.path?.reaction || "Пользователь не понял ответ.";
         const nextTurn = this.activeConversationScenario?.turns?.[this.activeConversation.turnIndex + 1];
-        this.activeConversation.chatHistory.push({ speaker: "Дипак", text: answerText, kind: "deepak" });
-        (currentTurn.memoryTokens || currentTurn.contextTokens || []).forEach((tokenId) => {
-          if (!this.activeConversation.memoryTokenIds.includes(tokenId)) this.activeConversation.memoryTokenIds.push(tokenId);
-        });
-        if (nextTurn) this.activeConversation.turnIndex += 1;
+        this.activeConversation.chatHistory.push({ speaker: "Bemini", text: answerText, kind: "deepak" });
+        if (nextTurn) {
+          this.activeConversation.turnIndex += 1;
+        }
         this.activeConversation.answer = [];
         return reaction;
       },
-      createConversation() {
-        const scenario = this.getRandomScenario();
+      getScenarioIdFromHash() {
+        const hash = window.location.hash || "";
+        const queryIndex = hash.indexOf("?");
+        if (queryIndex < 0) return "";
+        return new URLSearchParams(hash.slice(queryIndex + 1)).get("scenario") || "";
+      },
+      openScenarioFromHash() {
+        const scenarioId = this.getScenarioIdFromHash();
+        if (!scenarioId || !this.isContentReady) return;
+        this.isBiminiOpen = true;
+        this.startScenarioConversation(scenarioId);
+        if (!this.shiftStarted) this.startShift();
+      },
+      selectScenarioCharacter() {
+        const firstScenario = this.scenarioOptions[0];
+        this.scenarioPickerId = firstScenario?.id || "";
+      },
+      startSelectedScenario() {
+        this.startScenarioConversation(this.scenarioPickerId);
+      },
+      startScenarioConversation(scenarioId) {
+        const conversation = this.createConversation(scenarioId);
+        if (!conversation) {
+          this.resultHtml = `<div class="result-card"><p class="score warn">Сценарий не найден.</p><p>Выбери другой сценарий для проверки.</p></div>`;
+          this.isResultOpen = true;
+          return null;
+        }
+        this.activeConversationId = conversation.id;
+        this.scenarioPickerId = conversation.scenarioId;
+        const scenario = this.scenarios.find((item) => item.id === conversation.scenarioId);
+        this.characterPickerId = scenario?.characterId || "";
+        const firstTurn = scenario?.turns?.[0];
+        if (firstTurn?.request) this.pushUserMessage(conversation.id, firstTurn.request, 350);
+        return conversation;
+      },
+      createConversation(scenarioId = "") {
+        const scenario = scenarioId
+          ? this.scenarios.find((item) => item.id === scenarioId)
+          : this.getRandomScenario();
         if (!scenario) return null;
         const id = `conv_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
         const conversation = {
@@ -352,7 +486,7 @@
           scenarioId: scenario.id,
           turnIndex: 0,
           chatHistory: [],
-          memoryTokenIds: [],
+          revealedKeywordIds: [],
           answer: [],
           isWaitingForUser: false,
           unread: 0
@@ -361,15 +495,6 @@
         if (!this.activeConversationId) this.activeConversationId = conversation.id;
         this.$nextTick(this.initSortables);
         return conversation;
-      },
-      ensureConversationExists() {
-        if (this.conversations.length > 0) return;
-        const conversation = this.createConversation();
-        if (!conversation) return;
-        this.activeConversationId = conversation.id;
-        const scenario = this.scenarios.find((item) => item.id === conversation.scenarioId);
-        const firstTurn = scenario?.turns?.[0];
-        if (firstTurn?.request) this.pushUserMessage(conversation.id, firstTurn.request, 350);
       },
       selectConversation(conversationId) {
         this.activeConversationId = conversationId;
@@ -380,24 +505,45 @@
         }
         this.$nextTick(this.initSortables);
       },
-      startIncomingConversationLoop() {
-        const schedule = () => {
-          const delay = randomInt(9000, 18000);
-          this.incomingConversationTimerId = window.setTimeout(() => {
-            const conversation = this.createConversation();
-            if (conversation) {
-              const scenario = this.scenarios.find((item) => item.id === conversation.scenarioId);
-              const firstTurn = scenario?.turns?.[0];
-              if (firstTurn?.request) this.pushUserMessage(conversation.id, firstTurn.request, getRandomMessageDelay());
-            }
-            schedule();
-          }, delay);
-        };
-        if (!this.incomingConversationTimerId) schedule();
+      revealKeyword(keywordId) {
+        if (!this.activeConversation || !keywordId) return;
+        if (!this.activeConversation.revealedKeywordIds.includes(keywordId)) {
+          this.activeConversation.revealedKeywordIds.push(keywordId);
+          this.$nextTick(this.initTokenSortables);
+        }
+      },
+      getMessageParts(message) {
+        if (message.kind !== "user" || message.turnIndex !== this.activeConversation?.turnIndex) return [{ text: message.text }];
+        const lowerText = message.text.toLowerCase();
+        const matches = (this.currentTurn.keywords || [])
+          .map((keyword) => {
+            const text = String(keyword.text || "");
+            const index = text ? lowerText.indexOf(text.toLowerCase()) : -1;
+            return index >= 0 ? { keyword, index, end: index + text.length } : null;
+          })
+          .filter(Boolean)
+          .sort((a, b) => a.index - b.index);
+        const parts = [];
+        let cursor = 0;
+        matches.forEach((match) => {
+          if (match.index < cursor) return;
+          if (match.index > cursor) parts.push({ text: message.text.slice(cursor, match.index) });
+          parts.push({ text: message.text.slice(match.index, match.end), keyword: match.keyword });
+          cursor = match.end;
+        });
+        if (cursor < message.text.length) parts.push({ text: message.text.slice(cursor) });
+        return parts.length > 0 ? parts : [{ text: message.text }];
       },
       resetUnreadCounter() {
         this.unreadBiminiTotal = 0;
         this.conversations.forEach((conversation) => { conversation.unread = 0; });
+      },
+      getKeywordSourceClass(keyword) {
+        const turns = this.activeConversationScenario?.turns || [];
+        const visibleTurns = turns.slice(0, (this.activeConversation?.turnIndex || 0) + 1);
+        const visibleKeywords = visibleTurns.flatMap((turn) => turn.keywords || []);
+        const index = visibleKeywords.findIndex((item) => item.id === keyword?.id);
+        return `source-${Math.max(0, index) % 6}`;
       },
       initSortables() {
         this.initAnswerSortable();
@@ -787,6 +933,7 @@
       this.init();
       window.addEventListener("keydown", this.handleSnakeKeydown);
       window.addEventListener("keydown", this.handleRiceKeydown);
+      window.addEventListener("hashchange", this.openScenarioFromHash);
     },
     unmounted() {
       this.answerSortable?.destroy();
@@ -796,9 +943,9 @@
       if (this.riceLoopId) window.clearInterval(this.riceLoopId);
       if (this.flyTimerId) window.clearInterval(this.flyTimerId);
       if (this.flyLoopId) window.clearInterval(this.flyLoopId);
-      if (this.incomingConversationTimerId) window.clearTimeout(this.incomingConversationTimerId);
       window.removeEventListener("keydown", this.handleSnakeKeydown);
       window.removeEventListener("keydown", this.handleRiceKeydown);
+      window.removeEventListener("hashchange", this.openScenarioFromHash);
     },
     template: `
       <div class="game-root">
@@ -846,6 +993,9 @@
             </header>-->
 
             <menu role="tablist" class="conversation-tabs">
+              <li v-if="conversations.length === 0" role="tab" aria-selected="true">
+                <button type="button">Проверка сценария</button>
+              </li>
               <li
                 v-for="conversation in conversations"
                 :key="conversation.id"
@@ -860,79 +1010,137 @@
             </menu>
 
             <section class="layout">
-              <section class="panel chat-panel window">
-                <div class="title-bar inactive">
-                  <div class="title-bar-text">Чат Bemini</div>
-                </div>
-                <div class="window-body">
-                  <div class="chat-card">
-                    <div class="chat-history">
-                      <div v-for="(message, index) in (activeConversation?.chatHistory || [])" :key="index" class="message" :class="message.kind === 'deepak' ? 'message-deepak' : 'message-user'">
-                        <span class="message-meta">{{ message.speaker }}</span>
-                        {{ message.text }}
+              <section class="workspace-row">
+                <section class="panel chat-panel window">
+                  <div class="title-bar inactive">
+                    <div class="title-bar-text">Чат Bemini</div>
+                  </div>
+                  <div class="window-body">
+                    <div class="chat-card">
+                      <div class="chat-history">
+                        <div v-if="!activeConversation" class="empty-result">Выбери сценарий в панели помощи.</div>
+                        <div v-for="(message, index) in (activeConversation?.chatHistory || [])" :key="index" class="message" :class="message.kind === 'deepak' ? 'message-deepak' : 'message-user'">
+                          <span class="message-meta">{{ message.speaker }}</span>
+                          <template v-for="(part, partIndex) in getMessageParts(message)" :key="partIndex">
+                            <button
+                              v-if="part.keyword"
+                              type="button"
+                              class="keyword-chip"
+                              :class="[getKeywordSourceClass(part.keyword), { active: activeConversation?.revealedKeywordIds.includes(part.keyword.id) }]"
+                              @click="revealKeyword(part.keyword.id)"
+                            >
+                              {{ part.text }}
+                            </button>
+                            <span v-else>{{ part.text }}</span>
+                          </template>
+                        </div>
                       </div>
-                      <div v-if="!activeConversation" class="empty-result">Ожидание новых диалогов...</div>
+                    </div>
+
+                    <div class="answer-box">
+                      <div class="answer-title">Строка ответа</div>
+                      <div class="answer-line field-border" ref="answerLine">
+                        <span v-if="!activeConversation || activeConversation.answer.length === 0" class="empty-result"></span>
+                        <span
+                          v-for="(token, index) in (activeConversation?.answer || [])"
+                          :key="token.id + '-' + index"
+                          class="answer-token"
+                          :class="'role-' + token.role"
+                          :data-answer-index="index"
+                          @dblclick="removeAnswerToken(index)"
+                        >
+                          {{ token.text }}
+                        </span>
+                      </div>
+                      <div class="answer-actions answer-footer">
+                        <button type="button" :disabled="!activeConversation" @click="clearAnswer">Очистить</button>
+                        <button type="button" class="default" :disabled="!activeConversation || isWaitingForUser" @click="evaluateAnswer">Отправить</button>
+                      </div>
                     </div>
                   </div>
+                </section>
 
-                  <div class="answer-box">
-                    <div class="answer-title">Введите ответ</div>
-                    <div class="answer-line field-border" ref="answerLine">
-                      <span v-if="!activeConversation || activeConversation.answer.length === 0" class="empty-result"></span>
-                      <span
-                        v-for="(token, index) in (activeConversation?.answer || [])"
-                        :key="token.id + '-' + index"
-                        class="answer-token"
-                        :class="'role-' + token.role"
-                        :data-answer-index="index"
-                        @dblclick="removeAnswerToken(index)"
-                      >
-                        {{ token.text }}
-                      </span>
+                <section class="panel helper-panel window">
+                  <div class="title-bar inactive">
+                    <div class="title-bar-text">Помощь</div>
+                  </div>
+                  <div class="window-body">
+                    <div class="help-grid">
+                      <div class="help-row"><span>Bemini</span><strong>v1.3</strong></div>
+                      <div class="help-row"><span>Вопрос</span><strong>{{ questionProgressLabel }}</strong></div>
+                      <div class="help-row"><span>Таймер</span><strong>--</strong></div>
+                      <div class="help-row"><span>Автоотправка</span><strong>--</strong></div>
+                      <div class="help-row"><span>Контекст</span><strong>{{ contextTokens.length }} ток.</strong></div>
                     </div>
-                    <div class="answer-actions answer-footer">
-                      <button type="button" :disabled="!activeConversation" @click="clearAnswer">Очистить</button>
-                      <button type="button" class="default" :disabled="!activeConversation || isWaitingForUser" @click="evaluateAnswer">Отправить</button>
+                    <details class="help-section" open>
+                      <summary>Правила</summary>
+                      <p>Отвечай как Bemini. Следи за формой ответа и запрещёнными токенами.</p>
+                    </details>
+                    <details class="help-section" open>
+                      <summary>Профиль</summary>
+                      <p>{{ currentCharacter.name }}</p>
+                    </details>
+                    <button type="button" class="default result-toggle" @click="isResultOpen = !isResultOpen">Разбор</button>
+                    <section class="scenario-picker">
+                      <p class="scenario-picker-title">Сценарий</p>
+                      <label>
+                        Персонаж
+                        <select v-model="characterPickerId" @change="selectScenarioCharacter">
+                          <option v-for="character in characterOptions" :key="character.id" :value="character.id">
+                            {{ character.name }}
+                          </option>
+                        </select>
+                      </label>
+                      <label>
+                        Сценарий
+                      <select v-model="scenarioPickerId">
+                        <option v-for="scenario in scenarioOptions" :key="scenario.id" :value="scenario.id">
+                          {{ scenario.title }}
+                        </option>
+                      </select>
+                      </label>
+                      <button type="button" class="default" :disabled="!scenarioPickerId" @click="startSelectedScenario">Открыть сценарий</button>
+                    </section>
+                  </div>
+                </section>
+              </section>
+
+              <section class="panel tokens-panel window">
+                <div class="title-bar inactive">
+                  <div class="title-bar-text">Облако токенов</div>
+                </div>
+                <div class="window-body">
+                  <div class="token-groups" ref="tokenGroups">
+                    <div v-for="group in tokenGroups" :key="group.title" class="token-group">
+                      <h3>{{ group.title }} <span v-if="group.title === 'Контекст'">{{ group.tokens.length }} ток.</span></h3>
+                      <div class="token-list">
+                        <button
+                          v-for="token in group.tokens"
+                          :key="token.id"
+                          type="button"
+                          class="token-button"
+                          :class="['role-' + token.role, token.sourceClass, { 'token-highlighted': highlightedTokenIds.has(token.id) }]"
+                          draggable="true"
+                          :data-token-id="token.id"
+                          :title="token.sourceLabel ? 'Источник: ' + token.sourceLabel : ''"
+                          @click="addToken(token.id)"
+                        >
+                          {{ token.text }}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
               </section>
 
-              <section class="side-stack">
-                <section class="panel tokens-panel window">
-                  <div class="title-bar inactive">
-                    <div class="title-bar-text">Облако токенов</div>
+              <section v-if="isResultOpen" class="panel result-panel result-popover window">
+                <div class="title-bar">
+                  <div class="title-bar-text">Разбор ответа</div>
+                  <div class="title-bar-controls">
+                    <button aria-label="Close" @click="isResultOpen = false"></button>
                   </div>
-                  <div class="window-body">
-                    <div class="context-state" v-html="contextStateHtml"></div>
-                    <div ref="tokenGroups">
-                      <div v-for="group in tokenGroups" :key="group.title" class="token-group">
-                        <h3>{{ group.title }}</h3>
-                        <div class="token-list">
-                          <button
-                            v-for="token in group.tokens"
-                            :key="token.id"
-                            type="button"
-                            class="token-button"
-                            :class="['role-' + token.role, { 'token-highlighted': highlightedTokenIds.has(token.id) }]"
-                            draggable="true"
-                            :data-token-id="token.id"
-                            @click="addToken(token.id)"
-                          >
-                            {{ token.text }}
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </section>
-
-                <section class="panel result-panel window">
-                  <div class="title-bar inactive">
-                    <div class="title-bar-text">Разбор ответа</div>
-                  </div>
-                  <div class="window-body" v-html="resultHtml"></div>
-                </section>
+                </div>
+                <div class="window-body" v-html="resultHtml"></div>
               </section>
             </section>
           </div>
@@ -946,7 +1154,7 @@
             </div>
           </div>
           <div class="window-body">
-            <p class="mini-meta">Счёт: {{ snake.score }} | Рекорд: {{ snakeBestScore }} | WASD / стрелки</p>
+            <p class="mini-meta">Счёт: {{ snake.score }} | Рекорд: {{ snakeBestScore }} | WASD или стрелки</p>
             <canvas ref="snakeCanvas" class="mini-canvas" width="288" height="288"></canvas>
             <div class="mini-actions">
               <button type="button" @click="startSnakeGame">Новая игра</button>
@@ -970,8 +1178,8 @@
                 :class="['rice-' + riceGrain.type, riceIsSorting ? 'rice-sorting rice-sort-' + riceSortTarget : '']"
                 :style="{ left: riceGrain.x + 'px', top: riceGrain.y + 'px' }"
               ></div>
-              <div class="rice-bag rice-bag-good">A / ← Хороший</div>
-              <div class="rice-bag rice-bag-bad">D / → Плохой</div>
+              <div class="rice-bag rice-bag-good">A, влево — хороший</div>
+              <div class="rice-bag rice-bag-bad">D, вправо — плохой</div>
               <div v-if="riceFinished" class="mini-game-over">{{ riceMessage }}</div>
             </div>
             <p class="mini-hint">{{ riceMessage }}</p>

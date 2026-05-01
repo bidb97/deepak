@@ -6,7 +6,7 @@
   }
 
   function getAllTokens(tokensData) {
-    return [...tokensData.common, ...tokensData.scenario];
+    return tokensData.tokens || [];
   }
 
   function validateContent(content) {
@@ -14,13 +14,23 @@
     const tokenIds = new Set();
     const tokenDuplicates = new Set();
     const allTokens = getAllTokens(content.tokensData);
-    const concepts = new Set(allTokens.flatMap((token) => token.concepts || []));
-    const roles = new Set(allTokens.map((token) => token.role).filter(Boolean));
+    const concepts = new Set(["polite", "friendly", "negation", "can", "order", "condition", "connector", "contrast", "because", "punctuation", "closing"]);
+    const roles = new Set(["greeting", "subject", "negation", "modal", "polite", "intro", "connector", "comma", "sentence_end", "closing"]);
+
+    const registryTagIds = new Set();
+    const tagDuplicates = new Set();
+    (content.tagsData?.tags || []).forEach((tag) => {
+      if (!tag.id) items.push({ type: "bad", text: "Есть тег с пустым id." });
+      if (tag.id && registryTagIds.has(tag.id)) tagDuplicates.add(tag.id);
+      registryTagIds.add(tag.id);
+    });
+    tagDuplicates.forEach((id) => items.push({ type: "bad", text: `Дублируется tag id: ${id}.` }));
 
     allTokens.forEach((token) => {
       if (!token.id) items.push({ type: "bad", text: "Есть токен с пустым id." });
       if (token.id && tokenIds.has(token.id)) tokenDuplicates.add(token.id);
       tokenIds.add(token.id);
+      validateTagRefs(items, registryTagIds, token.tagIds, `Токен ${token.id || "(empty)"}: теги`);
     });
     tokenDuplicates.forEach((id) => items.push({ type: "bad", text: `Дублируется token id: ${id}.` }));
 
@@ -46,13 +56,28 @@
       }
 
       scenario.turns.forEach((turn, turnIndex) => {
-        const prefix = `${scenario.id || "(empty)"} / ход ${turnIndex + 1}`;
-        validateTokenRefs(items, tokenIds, turn.contextTokens, `${prefix}: токены контекста`);
-        validateTokenRefs(items, tokenIds, turn.memoryTokens, `${prefix}: токены памяти`);
+        const prefix = `${scenario.id || "(empty)"}, ход ${turnIndex + 1}`;
+        const keywordIds = new Set();
+        (turn.keywords || []).forEach((keyword, keywordIndex) => {
+          const keywordPrefix = `${prefix}, ключ ${keywordIndex + 1}`;
+          if (!keyword.id) items.push({ type: "bad", text: `${keywordPrefix}: пустой ID.` });
+          if (keyword.id && keywordIds.has(keyword.id)) items.push({ type: "bad", text: `${keywordPrefix}: дублируется ID.` });
+          keywordIds.add(keyword.id);
+          if (!keyword.text) items.push({ type: "warn", text: `${keywordPrefix}: нет текста для клика.` });
+          (keyword.tokens || []).forEach((tokenRef, tokenRefIndex) => {
+            const tokenRefPrefix = `${keywordPrefix}, токен ${tokenRefIndex + 1}`;
+            if (!tokenRef.tokenId) items.push({ type: "bad", text: `${tokenRefPrefix}: пустой tokenId.` });
+            else if (!tokenIds.has(tokenRef.tokenId)) items.push({ type: "bad", text: `${tokenRefPrefix}: неизвестный token id ${tokenRef.tokenId}.` });
+            if (!tokenRef.role) items.push({ type: "bad", text: `${tokenRefPrefix}: не выбрана роль.` });
+            if (tokenRef.role) roles.add(tokenRef.role);
+            (tokenRef.concepts || []).forEach((concept) => concepts.add(concept));
+          });
+          validateTagRefs(items, registryTagIds, keyword.tagIds, `${keywordPrefix}: теги`);
+        });
 
         const pathIds = new Set();
         turn.paths.forEach((path, pathIndex) => {
-          const pathPrefix = `${prefix} / ветка ${pathIndex + 1}`;
+          const pathPrefix = `${prefix}, ветка ${pathIndex + 1}`;
           if (!path.id) items.push({ type: "bad", text: `${pathPrefix}: пустой ID ветки.` });
           if (path.id && pathIds.has(path.id)) items.push({ type: "bad", text: `${pathPrefix}: дублируется ID ветки.` });
           pathIds.add(path.id);
@@ -71,9 +96,9 @@
     return items;
   }
 
-  function validateTokenRefs(items, tokenIds, ids, label) {
+  function validateTagRefs(items, registryIds, ids, label) {
     (ids || []).forEach((id) => {
-      if (!tokenIds.has(id)) items.push({ type: "bad", text: `${label}: неизвестный token id ${id}.` });
+      if (!registryIds.has(id)) items.push({ type: "bad", text: `${label}: неизвестный tag id ${id}.` });
     });
   }
 

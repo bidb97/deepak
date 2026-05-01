@@ -8,7 +8,6 @@
   ];
 
   const userMessageSound = "music/(1998) Windows 98_CHIMES.WAV";
-  const cowAmbientSound = "music/cow-moo-sound-short.mp3";
   const musicEnabledStorageKey = "deepakDemoMusicEnabled";
 
   function pickRandomTrack(exceptTrack) {
@@ -26,10 +25,6 @@
     if (!state.userAudio) {
       state.userAudio = new Audio(userMessageSound);
       state.userAudio.volume = 0.9;
-    }
-    if (!state.cowAudio) {
-      state.cowAudio = new Audio(cowAmbientSound);
-      state.cowAudio.volume = 0.18;
     }
   }
 
@@ -70,19 +65,12 @@
     state.userAudio.play().catch(() => {});
   }
 
-  function playCowAmbient(state) {
-    if (!state.cowAudio || !state.musicUnlocked) return;
-    state.cowAudio.currentTime = 0;
-    state.cowAudio.play().catch(() => {});
-  }
-
   root.audio = {
     musicEnabledStorageKey,
     initAudio,
     playRandomTrack,
     startMusic,
     toggleBackgroundMusic,
-    playUserMessageSound,
-    playCowAmbient
+    playUserMessageSound
   };
 })();

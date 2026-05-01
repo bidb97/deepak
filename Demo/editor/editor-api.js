@@ -24,6 +24,10 @@
     await root.contentService.saveContentToDirectory(handle, content);
   }
 
+  async function saveEditorDataFile(handle, fileName, data) {
+    await root.contentService.saveEditorDataFile(handle, fileName, data);
+  }
+
   async function rememberDemoHandle(handle) {
     await root.storage.saveDemoDirectoryHandle(handle);
   }
@@ -33,6 +37,7 @@
     pickDemoHandle,
     loadEditorContent,
     saveEditorContent,
+    saveEditorDataFile,
     rememberDemoHandle
   };
 })();

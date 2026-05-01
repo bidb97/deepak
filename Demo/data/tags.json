@@ -1,0 +1,36 @@
+{
+  "tags": [
+    {
+      "id": "common_basic",
+      "title": "Общие базовые слова"
+    },
+    {
+      "id": "common_connectors",
+      "title": "Связки и вводные"
+    },
+    {
+      "id": "common_punctuation",
+      "title": "Знаки препинания"
+    },
+    {
+      "id": "topic_borscht",
+      "title": "Борщ"
+    },
+    {
+      "id": "topic_cat",
+      "title": "Про кота"
+    },
+    {
+      "id": "topic_child",
+      "title": "Детский стих"
+    },
+    {
+      "id": "topic_fridge",
+      "title": "Холодильник"
+    },
+    {
+      "id": "topic_hack",
+      "title": "Взлом и аккаунт"
+    }
+  ]
+}

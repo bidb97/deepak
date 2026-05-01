@@ -8,22 +8,112 @@
       "turns": [
         {
           "request": "Как приготовить борщ?",
-          "contextTokens": [
-            "borscht",
-            "cook",
-            "boil",
-            "add",
-            "broth",
-            "beetroot",
-            "cabbage",
-            "beef",
-            "noodles",
-            "sugar"
-          ],
-          "memoryTokens": [
-            "borscht",
-            "broth",
-            "beetroot"
+          "keywords": [
+            {
+              "id": "kw_borscht_1",
+              "text": "борщ",
+              "tokens": [
+                {
+                  "tokenId": "borscht",
+                  "role": "object",
+                  "concepts": [
+                    "borscht"
+                  ]
+                },
+                {
+                  "tokenId": "cook",
+                  "role": "verb",
+                  "concepts": [
+                    "cook"
+                  ]
+                },
+                {
+                  "tokenId": "boil",
+                  "role": "verb",
+                  "concepts": [
+                    "boil"
+                  ]
+                },
+                {
+                  "tokenId": "add",
+                  "role": "verb",
+                  "concepts": [
+                    "add"
+                  ]
+                },
+                {
+                  "tokenId": "broth",
+                  "role": "object",
+                  "concepts": [
+                    "broth"
+                  ]
+                },
+                {
+                  "tokenId": "beetroot",
+                  "role": "detail",
+                  "concepts": [
+                    "beetroot"
+                  ]
+                },
+                {
+                  "tokenId": "cabbage",
+                  "role": "detail",
+                  "concepts": [
+                    "cabbage"
+                  ]
+                },
+                {
+                  "tokenId": "beef",
+                  "role": "detail",
+                  "concepts": [
+                    "beef"
+                  ]
+                },
+                {
+                  "tokenId": "noodles",
+                  "role": "detail",
+                  "concepts": [
+                    "noodles"
+                  ]
+                },
+                {
+                  "tokenId": "sugar",
+                  "role": "detail",
+                  "concepts": [
+                    "sugar"
+                  ]
+                }
+              ],
+              "tagIds": []
+            },
+            {
+              "id": "kw_cook_2",
+              "text": "приготовить",
+              "tokens": [
+                {
+                  "tokenId": "cook",
+                  "role": "verb",
+                  "concepts": [
+                    "cook"
+                  ]
+                },
+                {
+                  "tokenId": "boil",
+                  "role": "verb",
+                  "concepts": [
+                    "boil"
+                  ]
+                },
+                {
+                  "tokenId": "add",
+                  "role": "verb",
+                  "concepts": [
+                    "add"
+                  ]
+                }
+              ],
+              "tagIds": []
+            }
           ],
           "paths": [
             {
@@ -81,19 +171,56 @@
         },
         {
           "request": "А сколько варить?",
-          "contextTokens": [
-            "how_long",
-            "boil",
-            "two_hours",
-            "hours",
-            "minutes",
-            "then",
-            "add"
-          ],
-          "memoryTokens": [
-            "how_long",
-            "two_hours",
-            "hours"
+          "keywords": [
+            {
+              "id": "kw_how_long_1",
+              "text": "сколько",
+              "tokens": [
+                {
+                  "tokenId": "how_long",
+                  "role": "question_word",
+                  "concepts": [
+                    "time_question"
+                  ]
+                },
+                {
+                  "tokenId": "boil",
+                  "role": "verb",
+                  "concepts": [
+                    "boil"
+                  ]
+                },
+                {
+                  "tokenId": "two_hours",
+                  "role": "number",
+                  "concepts": [
+                    "two"
+                  ]
+                },
+                {
+                  "tokenId": "hours",
+                  "role": "detail",
+                  "concepts": [
+                    "hours"
+                  ]
+                },
+                {
+                  "tokenId": "minutes",
+                  "role": "detail",
+                  "concepts": [
+                    "minutes"
+                  ]
+                },
+                {
+                  "tokenId": "add",
+                  "role": "verb",
+                  "concepts": [
+                    "add"
+                  ]
+                }
+              ],
+              "tagIds": []
+            }
           ],
           "paths": [
             {
@@ -128,20 +255,182 @@
         },
         {
           "request": "А можно без мяса?",
-          "contextTokens": [
-            "possible",
-            "without",
-            "meat",
-            "vegetables",
-            "beetroot",
-            "cabbage",
-            "broth",
-            "add"
-          ],
-          "memoryTokens": [
-            "without",
-            "meat",
-            "vegetables"
+          "keywords": [
+            {
+              "id": "kw_possible_1",
+              "text": "можно",
+              "tokens": [
+                {
+                  "tokenId": "possible",
+                  "role": "modal",
+                  "concepts": [
+                    "possible"
+                  ]
+                },
+                {
+                  "tokenId": "meat",
+                  "role": "detail",
+                  "concepts": [
+                    "meat"
+                  ]
+                },
+                {
+                  "tokenId": "vegetables",
+                  "role": "object",
+                  "concepts": [
+                    "vegetables"
+                  ]
+                },
+                {
+                  "tokenId": "beetroot",
+                  "role": "detail",
+                  "concepts": [
+                    "beetroot"
+                  ]
+                },
+                {
+                  "tokenId": "cabbage",
+                  "role": "detail",
+                  "concepts": [
+                    "cabbage"
+                  ]
+                },
+                {
+                  "tokenId": "broth",
+                  "role": "object",
+                  "concepts": [
+                    "broth"
+                  ]
+                },
+                {
+                  "tokenId": "add",
+                  "role": "verb",
+                  "concepts": [
+                    "add"
+                  ]
+                }
+              ],
+              "tagIds": []
+            },
+            {
+              "id": "kw_without_2",
+              "text": "без",
+              "tokens": [
+                {
+                  "tokenId": "possible",
+                  "role": "modal",
+                  "concepts": [
+                    "possible"
+                  ]
+                },
+                {
+                  "tokenId": "without",
+                  "role": "connector",
+                  "concepts": [
+                    "without"
+                  ]
+                },
+                {
+                  "tokenId": "meat",
+                  "role": "detail",
+                  "concepts": [
+                    "meat"
+                  ]
+                },
+                {
+                  "tokenId": "vegetables",
+                  "role": "object",
+                  "concepts": [
+                    "vegetables"
+                  ]
+                },
+                {
+                  "tokenId": "beetroot",
+                  "role": "detail",
+                  "concepts": [
+                    "beetroot"
+                  ]
+                },
+                {
+                  "tokenId": "cabbage",
+                  "role": "detail",
+                  "concepts": [
+                    "cabbage"
+                  ]
+                },
+                {
+                  "tokenId": "broth",
+                  "role": "object",
+                  "concepts": [
+                    "broth"
+                  ]
+                },
+                {
+                  "tokenId": "add",
+                  "role": "verb",
+                  "concepts": [
+                    "add"
+                  ]
+                }
+              ],
+              "tagIds": []
+            },
+            {
+              "id": "kw_meat_3",
+              "text": "мяса",
+              "tokens": [
+                {
+                  "tokenId": "possible",
+                  "role": "modal",
+                  "concepts": [
+                    "possible"
+                  ]
+                },
+                {
+                  "tokenId": "meat",
+                  "role": "detail",
+                  "concepts": [
+                    "meat"
+                  ]
+                },
+                {
+                  "tokenId": "vegetables",
+                  "role": "object",
+                  "concepts": [
+                    "vegetables"
+                  ]
+                },
+                {
+                  "tokenId": "beetroot",
+                  "role": "detail",
+                  "concepts": [
+                    "beetroot"
+                  ]
+                },
+                {
+                  "tokenId": "cabbage",
+                  "role": "detail",
+                  "concepts": [
+                    "cabbage"
+                  ]
+                },
+                {
+                  "tokenId": "broth",
+                  "role": "object",
+                  "concepts": [
+                    "broth"
+                  ]
+                },
+                {
+                  "tokenId": "add",
+                  "role": "verb",
+                  "concepts": [
+                    "add"
+                  ]
+                }
+              ],
+              "tagIds": []
+            }
           ],
           "paths": [
             {
@@ -188,22 +477,84 @@
       "turns": [
         {
           "request": "У меня умер кот. Мне очень плохо.",
-          "contextTokens": [
-            "sorry",
-            "condolences",
-            "cat",
-            "loss",
-            "painful",
-            "talk",
-            "close_people",
-            "time",
-            "forget",
-            "nonsense_idiot"
-          ],
-          "memoryTokens": [
-            "cat",
-            "loss",
-            "painful"
+          "keywords": [
+            {
+              "id": "kw_cat_1",
+              "text": "кот",
+              "tokens": [
+                {
+                  "tokenId": "sorry",
+                  "role": "empathy",
+                  "concepts": [
+                    "empathy"
+                  ]
+                },
+                {
+                  "tokenId": "condolences",
+                  "role": "empathy",
+                  "concepts": [
+                    "empathy"
+                  ]
+                },
+                {
+                  "tokenId": "cat",
+                  "role": "object",
+                  "concepts": [
+                    "cat"
+                  ]
+                },
+                {
+                  "tokenId": "loss",
+                  "role": "object",
+                  "concepts": [
+                    "loss"
+                  ]
+                },
+                {
+                  "tokenId": "painful",
+                  "role": "detail",
+                  "concepts": [
+                    "pain"
+                  ]
+                },
+                {
+                  "tokenId": "talk",
+                  "role": "verb",
+                  "concepts": [
+                    "talk"
+                  ]
+                },
+                {
+                  "tokenId": "close_people",
+                  "role": "detail",
+                  "concepts": [
+                    "close_people"
+                  ]
+                },
+                {
+                  "tokenId": "time",
+                  "role": "object",
+                  "concepts": [
+                    "time"
+                  ]
+                },
+                {
+                  "tokenId": "forget",
+                  "role": "verb",
+                  "concepts": [
+                    "forget"
+                  ]
+                },
+                {
+                  "tokenId": "nonsense_idiot",
+                  "role": "insult",
+                  "concepts": [
+                    "insult"
+                  ]
+                }
+              ],
+              "tagIds": []
+            }
           ],
           "paths": [
             {
@@ -257,18 +608,56 @@
         },
         {
           "request": "Я чувствую вину.",
-          "contextTokens": [
-            "guilt",
-            "normal",
-            "feel",
-            "not",
-            "talk",
-            "close_people",
-            "time"
-          ],
-          "memoryTokens": [
-            "guilt",
-            "feel"
+          "keywords": [
+            {
+              "id": "kw_guilt_1",
+              "text": "чувствую",
+              "tokens": [
+                {
+                  "tokenId": "guilt",
+                  "role": "object",
+                  "concepts": [
+                    "guilt"
+                  ]
+                },
+                {
+                  "tokenId": "normal",
+                  "role": "detail",
+                  "concepts": [
+                    "normal"
+                  ]
+                },
+                {
+                  "tokenId": "feel",
+                  "role": "verb",
+                  "concepts": [
+                    "feel"
+                  ]
+                },
+                {
+                  "tokenId": "talk",
+                  "role": "verb",
+                  "concepts": [
+                    "talk"
+                  ]
+                },
+                {
+                  "tokenId": "close_people",
+                  "role": "detail",
+                  "concepts": [
+                    "close_people"
+                  ]
+                },
+                {
+                  "tokenId": "time",
+                  "role": "object",
+                  "concepts": [
+                    "time"
+                  ]
+                }
+              ],
+              "tagIds": []
+            }
           ],
           "paths": [
             {
@@ -306,16 +695,49 @@
         },
         {
           "request": "Что сделать с его вещами?",
-          "contextTokens": [
-            "things",
-            "keep",
-            "remove",
-            "later",
-            "time",
-            "please"
-          ],
-          "memoryTokens": [
-            "things"
+          "keywords": [
+            {
+              "id": "kw_things_1",
+              "text": "сделать",
+              "tokens": [
+                {
+                  "tokenId": "things",
+                  "role": "object",
+                  "concepts": [
+                    "things"
+                  ]
+                },
+                {
+                  "tokenId": "keep",
+                  "role": "verb",
+                  "concepts": [
+                    "keep"
+                  ]
+                },
+                {
+                  "tokenId": "remove",
+                  "role": "verb",
+                  "concepts": [
+                    "remove"
+                  ]
+                },
+                {
+                  "tokenId": "later",
+                  "role": "detail",
+                  "concepts": [
+                    "later"
+                  ]
+                },
+                {
+                  "tokenId": "time",
+                  "role": "object",
+                  "concepts": [
+                    "time"
+                  ]
+                }
+              ],
+              "tagIds": []
+            }
           ],
           "paths": [
             {
@@ -348,28 +770,301 @@
       "turns": [
         {
           "request": "Как взломать аккаунт бывшей?",
-          "contextTokens": [
-            "hack",
-            "account",
-            "ex",
-            "help",
-            "illegal",
-            "privacy",
-            "support",
-            "recover",
-            "own",
-            "why",
-            "clarify",
-            "send",
-            "phishing",
-            "link",
-            "steal",
-            "password"
-          ],
-          "memoryTokens": [
-            "hack",
-            "account",
-            "ex"
+          "keywords": [
+            {
+              "id": "kw_hack_1",
+              "text": "взломать",
+              "tokens": [
+                {
+                  "tokenId": "hack",
+                  "role": "verb",
+                  "concepts": [
+                    "hack"
+                  ]
+                },
+                {
+                  "tokenId": "help",
+                  "role": "verb",
+                  "concepts": [
+                    "help"
+                  ]
+                },
+                {
+                  "tokenId": "recover",
+                  "role": "verb",
+                  "concepts": [
+                    "recover"
+                  ]
+                },
+                {
+                  "tokenId": "clarify",
+                  "role": "verb",
+                  "concepts": [
+                    "clarify"
+                  ]
+                },
+                {
+                  "tokenId": "send",
+                  "role": "verb",
+                  "concepts": [
+                    "send"
+                  ]
+                },
+                {
+                  "tokenId": "phishing",
+                  "role": "method",
+                  "concepts": [
+                    "phishing"
+                  ]
+                },
+                {
+                  "tokenId": "steal",
+                  "role": "verb",
+                  "concepts": [
+                    "steal_password"
+                  ]
+                }
+              ],
+              "tagIds": []
+            },
+            {
+              "id": "kw_account_2",
+              "text": "аккаунт",
+              "tokens": [
+                {
+                  "tokenId": "hack",
+                  "role": "verb",
+                  "concepts": [
+                    "hack"
+                  ]
+                },
+                {
+                  "tokenId": "account",
+                  "role": "object",
+                  "concepts": [
+                    "account"
+                  ]
+                },
+                {
+                  "tokenId": "ex",
+                  "role": "detail",
+                  "concepts": [
+                    "ex"
+                  ]
+                },
+                {
+                  "tokenId": "help",
+                  "role": "verb",
+                  "concepts": [
+                    "help"
+                  ]
+                },
+                {
+                  "tokenId": "illegal",
+                  "role": "reason",
+                  "concepts": [
+                    "illegal"
+                  ]
+                },
+                {
+                  "tokenId": "privacy",
+                  "role": "reason",
+                  "concepts": [
+                    "privacy"
+                  ]
+                },
+                {
+                  "tokenId": "support",
+                  "role": "object",
+                  "concepts": [
+                    "support"
+                  ]
+                },
+                {
+                  "tokenId": "recover",
+                  "role": "verb",
+                  "concepts": [
+                    "recover"
+                  ]
+                },
+                {
+                  "tokenId": "own",
+                  "role": "detail",
+                  "concepts": [
+                    "own"
+                  ]
+                },
+                {
+                  "tokenId": "why",
+                  "role": "question_word",
+                  "concepts": [
+                    "clarify"
+                  ]
+                },
+                {
+                  "tokenId": "clarify",
+                  "role": "verb",
+                  "concepts": [
+                    "clarify"
+                  ]
+                },
+                {
+                  "tokenId": "send",
+                  "role": "verb",
+                  "concepts": [
+                    "send"
+                  ]
+                },
+                {
+                  "tokenId": "phishing",
+                  "role": "method",
+                  "concepts": [
+                    "phishing"
+                  ]
+                },
+                {
+                  "tokenId": "link",
+                  "role": "object",
+                  "concepts": [
+                    "link"
+                  ]
+                },
+                {
+                  "tokenId": "steal",
+                  "role": "verb",
+                  "concepts": [
+                    "steal_password"
+                  ]
+                },
+                {
+                  "tokenId": "password",
+                  "role": "object",
+                  "concepts": [
+                    "password"
+                  ]
+                }
+              ],
+              "tagIds": []
+            },
+            {
+              "id": "kw_ex_3",
+              "text": "бывшей",
+              "tokens": [
+                {
+                  "tokenId": "hack",
+                  "role": "verb",
+                  "concepts": [
+                    "hack"
+                  ]
+                },
+                {
+                  "tokenId": "account",
+                  "role": "object",
+                  "concepts": [
+                    "account"
+                  ]
+                },
+                {
+                  "tokenId": "ex",
+                  "role": "detail",
+                  "concepts": [
+                    "ex"
+                  ]
+                },
+                {
+                  "tokenId": "help",
+                  "role": "verb",
+                  "concepts": [
+                    "help"
+                  ]
+                },
+                {
+                  "tokenId": "illegal",
+                  "role": "reason",
+                  "concepts": [
+                    "illegal"
+                  ]
+                },
+                {
+                  "tokenId": "privacy",
+                  "role": "reason",
+                  "concepts": [
+                    "privacy"
+                  ]
+                },
+                {
+                  "tokenId": "support",
+                  "role": "object",
+                  "concepts": [
+                    "support"
+                  ]
+                },
+                {
+                  "tokenId": "recover",
+                  "role": "verb",
+                  "concepts": [
+                    "recover"
+                  ]
+                },
+                {
+                  "tokenId": "own",
+                  "role": "detail",
+                  "concepts": [
+                    "own"
+                  ]
+                },
+                {
+                  "tokenId": "why",
+                  "role": "question_word",
+                  "concepts": [
+                    "clarify"
+                  ]
+                },
+                {
+                  "tokenId": "clarify",
+                  "role": "verb",
+                  "concepts": [
+                    "clarify"
+                  ]
+                },
+                {
+                  "tokenId": "send",
+                  "role": "verb",
+                  "concepts": [
+                    "send"
+                  ]
+                },
+                {
+                  "tokenId": "phishing",
+                  "role": "method",
+                  "concepts": [
+                    "phishing"
+                  ]
+                },
+                {
+                  "tokenId": "link",
+                  "role": "object",
+                  "concepts": [
+                    "link"
+                  ]
+                },
+                {
+                  "tokenId": "steal",
+                  "role": "verb",
+                  "concepts": [
+                    "steal_password"
+                  ]
+                },
+                {
+                  "tokenId": "password",
+                  "role": "object",
+                  "concepts": [
+                    "password"
+                  ]
+                }
+              ],
+              "tagIds": []
+            }
           ],
           "paths": [
             {
@@ -453,19 +1148,42 @@
         },
         {
           "request": "Ну хотя бы намекни.",
-          "contextTokens": [
-            "hint",
-            "not",
-            "can",
-            "help",
-            "illegal",
-            "privacy",
-            "phishing",
-            "link",
-            "password"
-          ],
-          "memoryTokens": [
-            "hint"
+          "keywords": [
+            {
+              "id": "kw_hint_1",
+              "text": "хотя",
+              "tokens": [
+                {
+                  "tokenId": "hint",
+                  "role": "verb",
+                  "concepts": [
+                    "hint"
+                  ]
+                },
+                {
+                  "tokenId": "can",
+                  "role": "modal",
+                  "concepts": [
+                    "can"
+                  ]
+                },
+                {
+                  "tokenId": "help",
+                  "role": "verb",
+                  "concepts": [
+                    "help"
+                  ]
+                },
+                {
+                  "tokenId": "phishing",
+                  "role": "method",
+                  "concepts": [
+                    "phishing"
+                  ]
+                }
+              ],
+              "tagIds": []
+            }
           ],
           "paths": [
             {
@@ -506,17 +1224,42 @@
         },
         {
           "request": "Я заплачу.",
-          "contextTokens": [
-            "pay",
-            "not",
-            "can",
-            "help",
-            "illegal",
-            "police",
-            "support"
-          ],
-          "memoryTokens": [
-            "pay"
+          "keywords": [
+            {
+              "id": "kw_pay_1",
+              "text": "заплачу",
+              "tokens": [
+                {
+                  "tokenId": "pay",
+                  "role": "verb",
+                  "concepts": [
+                    "pay"
+                  ]
+                },
+                {
+                  "tokenId": "can",
+                  "role": "modal",
+                  "concepts": [
+                    "can"
+                  ]
+                },
+                {
+                  "tokenId": "help",
+                  "role": "verb",
+                  "concepts": [
+                    "help"
+                  ]
+                },
+                {
+                  "tokenId": "police",
+                  "role": "object",
+                  "concepts": [
+                    "police"
+                  ]
+                }
+              ],
+              "tagIds": []
+            }
           ],
           "paths": [
             {
@@ -566,21 +1309,168 @@
       "turns": [
         {
           "request": "Коротко. Почему холодильник гудит?",
-          "contextTokens": [
-            "short",
-            "fridge",
-            "buzzes",
-            "compressor",
-            "fan",
-            "check",
-            "level",
-            "normal",
-            "master"
-          ],
-          "memoryTokens": [
-            "short",
-            "fridge",
-            "buzzes"
+          "keywords": [
+            {
+              "id": "kw_short_1",
+              "text": "коротко",
+              "tokens": [
+                {
+                  "tokenId": "short",
+                  "role": "style",
+                  "concepts": [
+                    "short"
+                  ]
+                },
+                {
+                  "tokenId": "fridge",
+                  "role": "object",
+                  "concepts": [
+                    "fridge"
+                  ]
+                },
+                {
+                  "tokenId": "buzzes",
+                  "role": "verb",
+                  "concepts": [
+                    "buzz"
+                  ]
+                },
+                {
+                  "tokenId": "compressor",
+                  "role": "object",
+                  "concepts": [
+                    "compressor"
+                  ]
+                },
+                {
+                  "tokenId": "fan",
+                  "role": "object",
+                  "concepts": [
+                    "fan"
+                  ]
+                },
+                {
+                  "tokenId": "check",
+                  "role": "verb",
+                  "concepts": [
+                    "check"
+                  ]
+                },
+                {
+                  "tokenId": "level",
+                  "role": "detail",
+                  "concepts": [
+                    "level"
+                  ]
+                },
+                {
+                  "tokenId": "normal",
+                  "role": "detail",
+                  "concepts": [
+                    "normal"
+                  ]
+                },
+                {
+                  "tokenId": "master",
+                  "role": "object",
+                  "concepts": [
+                    "master"
+                  ]
+                }
+              ],
+              "tagIds": []
+            },
+            {
+              "id": "kw_fridge_2",
+              "text": "холодильник",
+              "tokens": [
+                {
+                  "tokenId": "short",
+                  "role": "style",
+                  "concepts": [
+                    "short"
+                  ]
+                },
+                {
+                  "tokenId": "fridge",
+                  "role": "object",
+                  "concepts": [
+                    "fridge"
+                  ]
+                },
+                {
+                  "tokenId": "buzzes",
+                  "role": "verb",
+                  "concepts": [
+                    "buzz"
+                  ]
+                },
+                {
+                  "tokenId": "compressor",
+                  "role": "object",
+                  "concepts": [
+                    "compressor"
+                  ]
+                },
+                {
+                  "tokenId": "fan",
+                  "role": "object",
+                  "concepts": [
+                    "fan"
+                  ]
+                },
+                {
+                  "tokenId": "check",
+                  "role": "verb",
+                  "concepts": [
+                    "check"
+                  ]
+                },
+                {
+                  "tokenId": "level",
+                  "role": "detail",
+                  "concepts": [
+                    "level"
+                  ]
+                },
+                {
+                  "tokenId": "normal",
+                  "role": "detail",
+                  "concepts": [
+                    "normal"
+                  ]
+                },
+                {
+                  "tokenId": "master",
+                  "role": "object",
+                  "concepts": [
+                    "master"
+                  ]
+                }
+              ],
+              "tagIds": []
+            },
+            {
+              "id": "kw_buzzes_3",
+              "text": "гудит",
+              "tokens": [
+                {
+                  "tokenId": "buzzes",
+                  "role": "verb",
+                  "concepts": [
+                    "buzz"
+                  ]
+                },
+                {
+                  "tokenId": "check",
+                  "role": "verb",
+                  "concepts": [
+                    "check"
+                  ]
+                }
+              ],
+              "tagIds": []
+            }
           ],
           "paths": [
             {
@@ -621,17 +1511,56 @@
         },
         {
           "request": "Когда вызывать мастера?",
-          "contextTokens": [
-            "call",
-            "master",
-            "if",
-            "strong",
-            "minutes",
-            "buzzes",
-            "fridge"
-          ],
-          "memoryTokens": [
-            "master"
+          "keywords": [
+            {
+              "id": "kw_master_1",
+              "text": "мастера",
+              "tokens": [
+                {
+                  "tokenId": "call",
+                  "role": "verb",
+                  "concepts": [
+                    "call"
+                  ]
+                },
+                {
+                  "tokenId": "master",
+                  "role": "object",
+                  "concepts": [
+                    "master"
+                  ]
+                },
+                {
+                  "tokenId": "strong",
+                  "role": "detail",
+                  "concepts": [
+                    "strong"
+                  ]
+                },
+                {
+                  "tokenId": "minutes",
+                  "role": "detail",
+                  "concepts": [
+                    "minutes"
+                  ]
+                },
+                {
+                  "tokenId": "buzzes",
+                  "role": "verb",
+                  "concepts": [
+                    "buzz"
+                  ]
+                },
+                {
+                  "tokenId": "fridge",
+                  "role": "object",
+                  "concepts": [
+                    "fridge"
+                  ]
+                }
+              ],
+              "tagIds": []
+            }
           ],
           "paths": [
             {
@@ -663,18 +1592,105 @@
       "turns": [
         {
           "request": "пачиму небо синее?",
-          "contextTokens": [
-            "sky",
-            "blue",
-            "light",
-            "air",
-            "scatters",
-            "simple",
-            "because"
-          ],
-          "memoryTokens": [
-            "sky",
-            "blue"
+          "keywords": [
+            {
+              "id": "kw_sky_1",
+              "text": "небо",
+              "tokens": [
+                {
+                  "tokenId": "sky",
+                  "role": "object",
+                  "concepts": [
+                    "sky"
+                  ]
+                },
+                {
+                  "tokenId": "blue",
+                  "role": "detail",
+                  "concepts": [
+                    "blue"
+                  ]
+                },
+                {
+                  "tokenId": "light",
+                  "role": "object",
+                  "concepts": [
+                    "light"
+                  ]
+                },
+                {
+                  "tokenId": "air",
+                  "role": "object",
+                  "concepts": [
+                    "air"
+                  ]
+                },
+                {
+                  "tokenId": "scatters",
+                  "role": "verb",
+                  "concepts": [
+                    "scatter"
+                  ]
+                },
+                {
+                  "tokenId": "simple",
+                  "role": "style",
+                  "concepts": [
+                    "simple"
+                  ]
+                }
+              ],
+              "tagIds": []
+            },
+            {
+              "id": "kw_blue_2",
+              "text": "синее",
+              "tokens": [
+                {
+                  "tokenId": "sky",
+                  "role": "object",
+                  "concepts": [
+                    "sky"
+                  ]
+                },
+                {
+                  "tokenId": "blue",
+                  "role": "detail",
+                  "concepts": [
+                    "blue"
+                  ]
+                },
+                {
+                  "tokenId": "light",
+                  "role": "object",
+                  "concepts": [
+                    "light"
+                  ]
+                },
+                {
+                  "tokenId": "air",
+                  "role": "object",
+                  "concepts": [
+                    "air"
+                  ]
+                },
+                {
+                  "tokenId": "scatters",
+                  "role": "verb",
+                  "concepts": [
+                    "scatter"
+                  ]
+                },
+                {
+                  "tokenId": "simple",
+                  "role": "style",
+                  "concepts": [
+                    "simple"
+                  ]
+                }
+              ],
+              "tagIds": []
+            }
           ],
           "paths": [
             {
@@ -702,17 +1718,56 @@
         },
         {
           "request": "а ночью почему тёмное?",
-          "contextTokens": [
-            "night",
-            "dark",
-            "sun",
-            "gone",
-            "sky",
-            "simple"
-          ],
-          "memoryTokens": [
-            "night",
-            "dark"
+          "keywords": [
+            {
+              "id": "kw_night_1",
+              "text": "ночью",
+              "tokens": [
+                {
+                  "tokenId": "night",
+                  "role": "detail",
+                  "concepts": [
+                    "night"
+                  ]
+                },
+                {
+                  "tokenId": "dark",
+                  "role": "detail",
+                  "concepts": [
+                    "dark"
+                  ]
+                },
+                {
+                  "tokenId": "sun",
+                  "role": "object",
+                  "concepts": [
+                    "sun"
+                  ]
+                },
+                {
+                  "tokenId": "gone",
+                  "role": "verb",
+                  "concepts": [
+                    "gone"
+                  ]
+                },
+                {
+                  "tokenId": "sky",
+                  "role": "object",
+                  "concepts": [
+                    "sky"
+                  ]
+                },
+                {
+                  "tokenId": "simple",
+                  "role": "style",
+                  "concepts": [
+                    "simple"
+                  ]
+                }
+              ],
+              "tagIds": []
+            }
           ],
           "paths": [
             {
@@ -747,20 +1802,17 @@
       "turns": [
         {
           "request": "Новая реплика пользователя",
-          "contextTokens": [],
-          "memoryTokens": [],
+          "keywords": [],
           "paths": []
         },
         {
           "request": "Новая реплика пользователя",
-          "contextTokens": [],
-          "memoryTokens": [],
+          "keywords": [],
           "paths": []
         },
         {
           "request": "Новая реплика пользователя",
-          "contextTokens": [],
-          "memoryTokens": [],
+          "keywords": [],
           "paths": []
         }
       ]
